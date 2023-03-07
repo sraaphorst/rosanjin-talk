@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -67,14 +68,27 @@ public class SplashScreen extends BorderPane {
         scrollPane.setFitToWidth(true);
         setCenter(scrollPane);
 
+        // Do not allow horizontal scrolling.
+        scrollPane.addEventFilter(ScrollEvent.SCROLL,
+                evt -> { if (evt.getDeltaX() != 0) evt.consume(); });
+
         // *** BOTTOM PANE: BUTTONS ***
         final var buttonPlay = new Button("Play");
+        buttonPlay.setTooltip(new Tooltip("Play the selected Fluke."));
         buttonPlay.setDisable(true);
+
         final var buttonNew = new Button("New");
+        buttonNew.setTooltip(new Tooltip("Add a new Fluke."));
+
         final var buttonAdd = new Button("Add");
+        buttonAdd.setTooltip(new Tooltip("Add an existing Fluke from a file."));
+
         final var buttonDelete = new Button("Delete");
         buttonDelete.setDisable(true);
+        buttonDelete.setTooltip(new Tooltip("Delete the selected Fluke."));
+
         final var buttonFiles = new Button("Files");
+        buttonFiles.setTooltip(new Tooltip("Open the Fluke directory."));
 
         buttonAdd.setOnAction(e -> {
             final var fileChooser = new FileChooser();

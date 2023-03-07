@@ -77,10 +77,7 @@ final public class CreatePanel extends BorderPane {
 
     public CreatePanel() {
         super();
-        createUI();
-    }
 
-    void createUI() {
         final var gridPane = new GridPane();
         gridPane.setHgap(10);
         gridPane.setPadding(new Insets(10));
