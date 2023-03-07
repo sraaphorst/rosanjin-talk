@@ -5,11 +5,13 @@ package com.vorpal.rosanjintalk.ui;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class RosanjinTalk extends Application {
@@ -27,9 +29,9 @@ public class RosanjinTalk extends Application {
 
     /**
      * Get the path in which the fluke files are stored.
-     * @return File representing the path where fluke files are stored.
+     * @return Path representing the path where fluke files are stored.
      */
-    public static File getFlukePath() {
+    public static Path getFlukePath() {
         try {
             final URI location = RosanjinTalk.class
                     .getProtectionDomain()
@@ -37,27 +39,25 @@ public class RosanjinTalk extends Application {
                     .getLocation()
                     .toURI();
             final var path = Paths.get(location).toAbsolutePath().getParent().getParent().resolve("flukes");
-            final var repo = path.toFile();
+            final var file = path.toFile();
 
             // Create the path if it doesn't exist.
             // The directory is a file instead of a path?
-            if (repo.isFile())
-                unrecoverableError("The directory:\n\n" + repo.getPath() +
+            if (file.isFile())
+                unrecoverableError("The directory:\n\n" + file.getPath() +
                         "\n\nthat is supposed to contain fluke files\n" +
                         "is not a directory.");
 
-            if (!repo.exists() && !repo.mkdir())
-                unrecoverableError ("The directory:\n\n" + repo.getPath() +
+            if (!file.exists() && !file.mkdir())
+                unrecoverableError ("The directory:\n\n" + file.getPath() +
                         "\n\nthat is supposed to contain fluke files\n" +
                         "could not be created.");
 
-            return repo;
+            return path;
         } catch (URISyntaxException ex) {
             unrecoverableError("Could not determine path of running application.");
+            return null;
         }
-
-        // Java compiler needs a return statement even though this point will never be reached.
-        return null;
     }
 
     public static void unrecoverableError(final String text) {
@@ -71,10 +71,19 @@ public class RosanjinTalk extends Application {
 
     public static void recoverableError(final String text) {
         final var alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Rosanjin Warning");
+        alert.setTitle("RosanjinTalk Warning");
         alert.setHeaderText(null);
         alert.setContentText(text);
         alert.showAndWait();
+    }
+
+    public static boolean confirmationRequest(final String text) {
+        final var alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("RosanjinTalk Confirmation");
+        alert.setHeaderText(null);
+        alert.setContentText(text);
+        final var response = alert.showAndWait();
+        return response.isPresent() && response.get() == ButtonType.OK;
     }
 
     public static void main(final String[] args) {

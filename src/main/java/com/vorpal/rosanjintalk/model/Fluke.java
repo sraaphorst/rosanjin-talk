@@ -52,7 +52,7 @@ public record Fluke(String name, Map<Integer, String> inputs, String text) {
         final var flukeFilename = filename.endsWith(".fluke") ? filename : filename + ".fluke";
         final var path = RosanjinTalk.getFlukePath();
         Objects.requireNonNull(path);
-        final var flukePath = Paths.get(path.toURI()).resolve(flukeFilename);
+        final var flukePath = path.resolve(flukeFilename);
 
         try {
             Files.write(flukePath, toJson().getBytes());
@@ -72,7 +72,7 @@ public record Fluke(String name, Map<Integer, String> inputs, String text) {
     public static Fluke load(final String flukeFilename) {
         final var path = RosanjinTalk.getFlukePath();
         Objects.requireNonNull(path);
-        final var flukePath = Paths.get(path.toURI()).resolve(flukeFilename);
+        final var flukePath = path.resolve(flukeFilename);
         try {
             final var json = Files.readString(flukePath);
             return fromJson(json);
