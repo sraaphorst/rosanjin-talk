@@ -2,28 +2,43 @@ package com.vorpal.rosanjintalk.model;
 
 // By Sebastian Raaphorst, 2023.
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 /**
- * This is the model for storing an ad-lib aka Rosanjin-talk.
+ * This is an immutable model for storing a RosanjinTalk file, aka a Fluke.
  * It contains the required prompts with their substitution number and the text
  * in which to make the substitutions.
- * I know getting rid of Java Serialization is a long-term goal, but for a project of this magnitude,
- * it is the easiest solution and should not be brittle.
  *
  * @param name   The name of the story.
- * @param inputs The list of inputs to the text for substitution. Key 1, for example, will prompt inputs[1] and then substitute any occurrences of "{1}" in the text. with the response.
+ * @param inputs The list of inputs to the text for substitution. Key 1, for example, will prompt inputs[1] and then
+ *               substitute any occurrences of "{1}" in the text. with the response.
  */
-public record RosanjinTalkResource(String name, Map<Integer, String> inputs, String text) implements Serializable {
-    public RosanjinTalkResource(final String name, final Map<Integer, String> inputs, final String text) {
+public record Fluke(String name, Map<Integer, String> inputs, String text) {
+    public Fluke {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(inputs);
+        Objects.requireNonNull(text);
+
         if (isInvalid(inputs.keySet(), text))
             throw new RuntimeException("There are substitutions in the story body that are not in the inputs.");
-        this.name = name;
-        this.inputs = Collections.unmodifiableMap(inputs);
-        this.text = text;
+    }
+
+    public static final ObjectMapper MAPPER = new ObjectMapper()
+            .configure(SerializationFeature.INDENT_OUTPUT, true);
+
+    public static Fluke fromJson(final String json) throws IOException {
+        return MAPPER.readValue(json, Fluke.class);
+    }
+
+    public String toJson() throws JsonProcessingException {
+        return MAPPER.writeValueAsString(this);
     }
 
     /**

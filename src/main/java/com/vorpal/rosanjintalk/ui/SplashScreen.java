@@ -3,6 +3,7 @@ package com.vorpal.rosanjintalk.ui;
 // By Sebastian Raaphorst, 2023.
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -16,7 +17,6 @@ import javafx.scene.text.Font;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -40,18 +40,16 @@ public class SplashScreen extends BorderPane {
     public SplashScreen() {
         super();
 
-        // The file pane
+        // *** CENTER PANE: FILE LIST ***
         fileList.setEditable(false);
-
         try {
             populateFiles();
         } catch (final URISyntaxException | IOException ex) {
             ex.getStackTrace();
         }
-
         setCenter(fileList);
 
-        // Top pane with description.
+        // *** TOP PANE: SPLASH ***
         final var top = new HBox(30);
         top.setAlignment(Pos.CENTER);
         final var rosanjinImageStream = getClass().getResourceAsStream("/rosanjin.jpeg");
@@ -67,13 +65,16 @@ public class SplashScreen extends BorderPane {
         vbox.getChildren().addAll(rosanjinLabel, authorLabel, userLabel);
         top.getChildren().addAll(rosanjinImageView, vbox);
         setTop(top);
+
+        // *** BOTTOM PANE: BUTTONS ***
+        final var bottom = new HBox(30);
+        bottom.setAlignment(Pos.CENTER);
+
     }
 
     public void populateFiles() throws URISyntaxException, IOException {
-//        final ObservableList<RosanjinTalkEntry> lst = FXCollections.observableArrayList();
-        final var lst = FXCollections.<RosanjinTalkEntry>observableArrayList();
-        final var path = getPath();
-        final var repo = new File(getPath());
+        final var repo = RosanjinTalk.getPath();
+        System.out.println("***REPO:***");
         System.out.println(repo);
 
         // The directory is a file instead of a path?
@@ -81,7 +82,7 @@ public class SplashScreen extends BorderPane {
             final var alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Directory is corrupt");
             alert.setHeaderText(null);
-            alert.setContentText("The directory:\n\n" + path + "\n\nthat is supposed to contain FLUKE files\n"
+            alert.setContentText("The directory:\n\n" + repo.getPath() + "\n\nthat is supposed to contain fluke files\n"
                     + "is not a directory!");
             alert.showAndWait();
             System.exit(1);
@@ -90,9 +91,9 @@ public class SplashScreen extends BorderPane {
         if (!repo.exists())
             repo.mkdirs();
 
-        List<RosanjinTalkEntry> result;
+        final List<RosanjinTalkEntry> result;
         // Now read in the FLUKE files from the directory and populate the lst.
-        try (final var walk = Files.walk(Paths.get(path), 1)) {
+        try (final var walk = Files.walk(Paths.get(repo.toURI()), 1)) {
             result = walk
                     .filter(p -> !Files.isDirectory(p))
                     .map(p -> p.toString().toLowerCase())
@@ -106,16 +107,7 @@ public class SplashScreen extends BorderPane {
                     .toList();
         }
 
-        lst.setAll(result);
+        final ObservableList<RosanjinTalkEntry> lst = FXCollections.observableArrayList(result);
         fileList.setItems(lst);
-    }
-
-    private String getPath() throws URISyntaxException {
-        final URI location = getClass()
-                .getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .toURI();
-        return new File(location).getParentFile().getPath();
     }
 }

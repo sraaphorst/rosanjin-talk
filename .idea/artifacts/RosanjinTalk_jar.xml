@@ -10,6 +10,9 @@
       <element id="library" level="project" name="Gradle: org.openjfx:javafx-graphics:19" />
       <element id="library" level="project" name="Gradle: org.openjfx:javafx-controls:19" />
       <element id="library" level="project" name="Gradle: org.openjfx:javafx-base:19" />
+      <element id="library" level="project" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.12.1" />
+      <element id="library" level="project" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.12.1" />
+      <element id="library" level="project" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.12.1" />
     </root>
   </artifact>
 </component>
