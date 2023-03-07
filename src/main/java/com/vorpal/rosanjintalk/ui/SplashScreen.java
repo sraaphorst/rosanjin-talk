@@ -20,30 +20,20 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
 
 public class SplashScreen extends BorderPane {
-    public record RosanjinTalkEntry(String name, String path) implements Comparable<RosanjinTalkEntry> {
-        @Override
-        public int compareTo(RosanjinTalkEntry other) {
-            return name.compareTo(other.name);
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
-
     // The file list.
-    private final ObservableList<RosanjinTalkEntry> files = FXCollections.observableArrayList();
+    private final ObservableList<String> files = FXCollections.observableArrayList();
+
+    // The path to the fluke files. Required by multiple methods and event handlers.
+    private final Path flukePath = Objects.requireNonNull(RosanjinTalk.getFlukePath());
 
     public SplashScreen(final Stage stage) {
         super();
@@ -66,13 +56,9 @@ public class SplashScreen extends BorderPane {
         setTop(top);
 
         // *** CENTER PANE: FILE LIST ***
-        try {
-            populateFiles();
-        } catch (final IOException | URISyntaxException ex) {
-            RosanjinTalk.unrecoverableError("Could not populate the fluke file list.");
-        }
+        populateFiles();
 
-        final ListView<RosanjinTalkEntry> fileList = new ListView<>(files);
+        final ListView<String> fileList = new ListView<>(files);
         fileList.setEditable(false);
 
         final var scrollPane = new ScrollPane(fileList);
@@ -98,22 +84,41 @@ public class SplashScreen extends BorderPane {
             );
             final var selectedFile = fileChooser.showOpenDialog(stage);
             if (selectedFile != null) {
-                final var flukePath = RosanjinTalk.getFlukePath();
-                Objects.requireNonNull(flukePath);
                 final var uri = Paths.get(selectedFile.toURI());
                 final var name = selectedFile.getName();
+
+                // Empty string indicates cancellation.
+                if (name.equals(""))
+                    return;
+
                 try {
-                    Files.copy(uri, flukePath.toPath().resolve(name), StandardCopyOption.REPLACE_EXISTING);
+                    final var selectedIdx = fileList.getSelectionModel().getSelectedIndex();
+                    Files.copy(uri, flukePath.resolve(name), StandardCopyOption.REPLACE_EXISTING);
                     populateFiles();
-                } catch (final IOException | URISyntaxException ex) {
+                    fileList.getSelectionModel().selectIndices(selectedIdx);
+                } catch (final IOException ex) {
                     RosanjinTalk.recoverableError("Could not copy file:\n\n" + uri + "\n\nto:\n\n" + flukePath);
                 }
             }
         });
 
+        buttonDelete.setOnAction(e -> {
+            // Delete the currently active file in the list after prompting.
+            final var filename = fileList.getSelectionModel().selectedItemProperty().getValue();
+            final var response = RosanjinTalk.confirmationRequest("Are you sure you want to delete: " + filename);
+            if (response) {
+                final var selectedIdx = fileList.getSelectionModel().getSelectedIndex();
+                if (!flukePath.resolve(filename).toFile().delete())
+                    RosanjinTalk.recoverableError("Could not delete file: " + filename);
+                populateFiles();
+                final var newSelectedIdx = selectedIdx >= files.size() ? selectedIdx - 1 : selectedIdx;
+                fileList.getSelectionModel().selectIndices(newSelectedIdx);
+            }
+        });
+
         buttonFiles.setOnAction(e -> {
             try {
-                Desktop.getDesktop().open(RosanjinTalk.getFlukePath());
+                Desktop.getDesktop().open(flukePath.toFile());
             } catch (final IOException ex) {
                 RosanjinTalk.unrecoverableError("Could not open file viewer.");
             }
@@ -133,27 +138,19 @@ public class SplashScreen extends BorderPane {
         });
     }
 
-    public void populateFiles() throws URISyntaxException, IOException {
-        final var repo = RosanjinTalk.getFlukePath();
-        System.out.println("***REPO:***");
-        System.out.println(repo);
-
-        final List<RosanjinTalkEntry> result;
+    public void populateFiles() {
+        final List<String> result;
         // Now read in the FLUKE files from the directory and populate the lst.
-        try (final var walk = Files.walk(Paths.get(repo.toURI()), 1)) {
+        try (final var walk = Files.walk(flukePath, 1)) {
             result = walk
                     .filter(p -> !Files.isDirectory(p))
-                    .map(p -> p.toString().toLowerCase())
-                    .filter(f -> f.endsWith(".fluke"))
-                    .map(f -> {
-                        final int filenameIdx = f.lastIndexOf(File.separator);
-                        final String filename = f.substring(filenameIdx + 1);
-                        return new RosanjinTalkEntry(filename, f);
-                    })
+                    .filter(p -> p.toFile().getName().endsWith(".fluke"))
+                    .map(p -> p.toFile().getName())
                     .sorted()
                     .toList();
+            files.setAll(result);
+        } catch (final IOException e) {
+            RosanjinTalk.unrecoverableError("Could not populate fluke file list.");
         }
-
-        files.setAll(result);
     }
 }
