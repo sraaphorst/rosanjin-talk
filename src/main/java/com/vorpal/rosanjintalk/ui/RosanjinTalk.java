@@ -16,7 +16,7 @@ public class RosanjinTalk extends Application {
     @Override
     public void start(final Stage stage) {
 //        final var root = new CreatePanel();
-        final var root = new SplashScreen();
+        final var root = new SplashScreen(stage);
         final var scene = new Scene(root, 400, 500);
         stage.setScene(scene);
 
@@ -67,6 +67,14 @@ public class RosanjinTalk extends Application {
         alert.setContentText(text);
         alert.showAndWait();
         System.exit(1);
+    }
+
+    public static void recoverableError(final String text) {
+        final var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Rosanjin Warning");
+        alert.setHeaderText(null);
+        alert.setContentText(text);
+        alert.showAndWait();
     }
 
     public static void main(final String[] args) {
