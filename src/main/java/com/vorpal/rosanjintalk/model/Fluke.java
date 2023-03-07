@@ -2,7 +2,9 @@ package com.vorpal.rosanjintalk.model;
 
 // By Sebastian Raaphorst, 2023.
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -10,6 +12,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.vorpal.rosanjintalk.ui.RosanjinTalk;
 
 /**
  * This is an immutable model for storing a RosanjinTalk file, aka a Fluke.
@@ -39,6 +42,45 @@ public record Fluke(String name, Map<Integer, String> inputs, String text) {
 
     public String toJson() throws JsonProcessingException {
         return MAPPER.writeValueAsString(this);
+    }
+
+    /**
+     * Save the contents as a zipped file of JSON as a .fluke file.
+     * @param filename the name of the file. If it has no fluke extension, fluke is added.
+     */
+    public void save(final String filename) {
+        final var flukeFilename = filename.endsWith(".fluke") ? filename : filename + ".fluke";
+        final var path = RosanjinTalk.getFlukePath();
+        Objects.requireNonNull(path);
+        final var flukePath = Paths.get(path.toURI()).resolve(flukeFilename);
+
+        try {
+            Files.write(flukePath, toJson().getBytes());
+        } catch (final JsonProcessingException e) {
+            RosanjinTalk.unrecoverableError("Could not convert into output format.");
+        } catch (final IOException e) {
+            RosanjinTalk.unrecoverableError("Could not write file:\n\n" + flukeFilename +
+                    "\n\nto path:\n\n" + path);
+        }
+    }
+
+    /**
+     * Open a file from the fluke directory. Should end with .fluke.
+     * @param flukeFilename The file to open from the fluke directory.
+     * @return A Fluke object representing the file.
+     */
+    public static Fluke load(final String flukeFilename) {
+        final var path = RosanjinTalk.getFlukePath();
+        Objects.requireNonNull(path);
+        final var flukePath = Paths.get(path.toURI()).resolve(flukeFilename);
+        try {
+            final var json = Files.readString(flukePath);
+            return fromJson(json);
+        } catch (final IOException e) {
+            RosanjinTalk.unrecoverableError("Could not read file:\n\n" + flukeFilename);
+            // We will never reach this point.
+            return null;
+        }
     }
 
     /**
