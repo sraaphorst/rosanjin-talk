@@ -62,7 +62,7 @@ Go to your platform and install either the:
 You may be able to use other Java distributions as well: I recommend **bellsoft Liberica Java** because
 unlike other Java distributions, it comes packaged with JavaFX, making it easier to configure.
 
-(Whether or not this will be the case is TBD.)
+(Whether this will be the case is TBD.)
 
 **Status**: Work in progress.
 

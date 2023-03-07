@@ -4,10 +4,12 @@ package com.vorpal.rosanjintalk.ui;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -15,6 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,19 +38,11 @@ public class SplashScreen extends BorderPane {
         }
     }
 
-    private final ListView<RosanjinTalkEntry> fileList = new ListView<>();
+    // The file list.
+    private final ObservableList<RosanjinTalkEntry> files = FXCollections.observableArrayList();
 
     public SplashScreen() {
         super();
-
-        // *** CENTER PANE: FILE LIST ***
-        fileList.setEditable(false);
-        try {
-            populateFiles();
-        } catch (final URISyntaxException | IOException ex) {
-            ex.getStackTrace();
-        }
-        setCenter(fileList);
 
         // *** TOP PANE: SPLASH ***
         final var top = new HBox(30);
@@ -66,30 +61,57 @@ public class SplashScreen extends BorderPane {
         top.getChildren().addAll(rosanjinImageView, vbox);
         setTop(top);
 
-        // *** BOTTOM PANE: BUTTONS ***
-        final var bottom = new HBox(30);
-        bottom.setAlignment(Pos.CENTER);
+        // *** CENTER PANE: FILE LIST ***
+        try {
+            populateFiles();
+        } catch (final URISyntaxException | IOException ex) {
+            ex.getStackTrace();
+        }
 
+        final ListView<RosanjinTalkEntry> fileList = new ListView<>(files);
+        fileList.setEditable(false);
+
+        final var scrollPane = new ScrollPane(fileList);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setFitToWidth(true);
+        setCenter(scrollPane);
+
+        // *** BOTTOM PANE: BUTTONS ***
+        final var buttonPlay = new Button("Play");
+        buttonPlay.setDisable(true);
+        final var buttonNew = new Button("New");
+        final var buttonAdd = new Button("Add");
+        final var buttonDelete = new Button("Delete");
+        buttonDelete.setDisable(true);
+        final var buttonFiles = new Button("Files");
+
+        buttonFiles.setOnAction(e -> {
+            try {
+                Desktop.getDesktop().open(RosanjinTalk.getFlukePath());
+            } catch (final IOException ex) {
+                RosanjinTalk.unrecoverableError("Could not open file viewer.");
+            }
+        });
+
+        final var bottom = new HBox(30);
+        bottom.setPadding(new Insets(20, 20, 20, 20));
+        bottom.setAlignment(Pos.CENTER);
+        bottom.getChildren().addAll(buttonPlay, buttonNew, buttonAdd, buttonDelete, buttonFiles);
+        setBottom(bottom);
+
+        // Make the fileList selection affect the enabled buttons.
+        fileList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            final var buttonsDisabled = newValue == null;
+            buttonPlay.setDisable(buttonsDisabled);
+            buttonDelete.setDisable(buttonsDisabled);
+        });
     }
 
     public void populateFiles() throws URISyntaxException, IOException {
-        final var repo = RosanjinTalk.getPath();
+        final var repo = RosanjinTalk.getFlukePath();
         System.out.println("***REPO:***");
         System.out.println(repo);
-
-        // The directory is a file instead of a path?
-        if (repo.isFile()) {
-            final var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Directory is corrupt");
-            alert.setHeaderText(null);
-            alert.setContentText("The directory:\n\n" + repo.getPath() + "\n\nthat is supposed to contain fluke files\n"
-                    + "is not a directory!");
-            alert.showAndWait();
-            System.exit(1);
-        }
-
-        if (!repo.exists())
-            repo.mkdirs();
 
         final List<RosanjinTalkEntry> result;
         // Now read in the FLUKE files from the directory and populate the lst.
@@ -107,7 +129,6 @@ public class SplashScreen extends BorderPane {
                     .toList();
         }
 
-        final ObservableList<RosanjinTalkEntry> lst = FXCollections.observableArrayList(result);
-        fileList.setItems(lst);
+        files.setAll(result);
     }
 }
