@@ -16,6 +16,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.File;
@@ -23,7 +25,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Objects;
 
 public class SplashScreen extends BorderPane {
     public record RosanjinTalkEntry(String name, String path) implements Comparable<RosanjinTalkEntry> {
@@ -41,7 +45,7 @@ public class SplashScreen extends BorderPane {
     // The file list.
     private final ObservableList<RosanjinTalkEntry> files = FXCollections.observableArrayList();
 
-    public SplashScreen() {
+    public SplashScreen(final Stage stage) {
         super();
 
         // *** TOP PANE: SPLASH ***
@@ -64,8 +68,8 @@ public class SplashScreen extends BorderPane {
         // *** CENTER PANE: FILE LIST ***
         try {
             populateFiles();
-        } catch (final URISyntaxException | IOException ex) {
-            ex.getStackTrace();
+        } catch (final IOException | URISyntaxException ex) {
+            RosanjinTalk.unrecoverableError("Could not populate the fluke file list.");
         }
 
         final ListView<RosanjinTalkEntry> fileList = new ListView<>(files);
@@ -85,6 +89,27 @@ public class SplashScreen extends BorderPane {
         final var buttonDelete = new Button("Delete");
         buttonDelete.setDisable(true);
         final var buttonFiles = new Button("Files");
+
+        buttonAdd.setOnAction(e -> {
+            final var fileChooser = new FileChooser();
+            fileChooser.setTitle("Select Fluke File");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Fluke Files", "*.fluke")
+            );
+            final var selectedFile = fileChooser.showOpenDialog(stage);
+            if (selectedFile != null) {
+                final var flukePath = RosanjinTalk.getFlukePath();
+                Objects.requireNonNull(flukePath);
+                final var uri = Paths.get(selectedFile.toURI());
+                final var name = selectedFile.getName();
+                try {
+                    Files.copy(uri, flukePath.toPath().resolve(name), StandardCopyOption.REPLACE_EXISTING);
+                    populateFiles();
+                } catch (final IOException | URISyntaxException ex) {
+                    RosanjinTalk.recoverableError("Could not copy file:\n\n" + uri + "\n\nto:\n\n" + flukePath);
+                }
+            }
+        });
 
         buttonFiles.setOnAction(e -> {
             try {
