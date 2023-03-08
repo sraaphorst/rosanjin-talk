@@ -8,7 +8,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -23,7 +22,13 @@ import java.util.stream.Collectors;
 /**
  * An input panel to manage the substitution information for the main text.
  */
-final public class Editor extends BorderPane {
+final public class EditorPane extends BorderPane {
+    // The left panel is a fixed width, and the minimum starting width of the story is suggested.
+    // These are used to initialize the scene coordinates.
+    private static final int LEFT_WIDTH = 300;
+    private static final int STORY_WIDTH = 400;
+    private static final int HEIGHT = 400;
+
     // Event handler for all checkboxes in rows.
     final EventHandler<ActionEvent> deleteCheck = (final ActionEvent e) -> processDeleteButton();
 
@@ -73,27 +78,42 @@ final public class Editor extends BorderPane {
         }
     }
 
-    private Fluke fluke;
+    /**
+     * The suggested starting width for this pane.
+     * @return width
+     */
+    static int width() {
+        return LEFT_WIDTH + STORY_WIDTH;
+    }
+
+    /**
+     * The suggested starting height for this pane.
+     * @return height
+     */
+    static int height() {
+        return HEIGHT;
+    }
+
+    private String filename = null;
     private final List<Row> rows = new ArrayList<>();
     private final Button addButton = new Button("Add row");
     private final Button deleteButton = new Button("Delete Row(s)");
     private final Button saveButton = new Button("Save");
-    private final TextField title = new TextField();
-    private final TextArea text = new TextArea();
+    private final StoryPane storyPane;
 
-    public Editor() {
+    public EditorPane() {
         super();
-        this.fluke = null;
-        createUI();
+        storyPane = new StoryPane();
+        createUI(null);
     }
 
-    public Editor(final Fluke fluke) {
+    public EditorPane(final Fluke fluke) {
         super();
-        this.fluke = fluke;
-        createUI();
+        storyPane = new StoryPane(fluke);
+        createUI(fluke);
     }
 
-    private void createUI() {
+    private void createUI(final Fluke fluke) {
         // *** SUBSTITUTION GRID
         final var gridPane = new GridPane();
         gridPane.setHgap(10);
@@ -108,25 +128,29 @@ final public class Editor extends BorderPane {
         c2.setPercentWidth(70);
         gridPane.getColumnConstraints().addAll(c0, c1, c2);
 
-        final var substitutionLabel = new Label("Substitute");
-        substitutionLabel.setTextAlignment(TextAlignment.CENTER);
-        gridPane.add(substitutionLabel, 1, 0);
+        final var substitutionLabel = new Label("Sub");
+        substitutionLabel.setTooltip(new Tooltip("Substitution marker for response in story"));
+        substitutionLabel.setAlignment(Pos.CENTER);
+
         final var descriptionLabel = new Label("Description");
-        descriptionLabel.setTextAlignment(TextAlignment.CENTER);
+        descriptionLabel.setTooltip(new Tooltip("Prompt asked to player"));
+
+        gridPane.add(substitutionLabel, 1, 0);
         gridPane.add(descriptionLabel, 2, 0);
 
-        // Add the rows.
+        // Add the rows. If a Fluke file was not passed in, then add one new row.
         if (fluke != null) {
             final var existingRows = fluke.inputs().entrySet().stream()
                     .map(e -> new Row(e.getKey(), e.getValue()))
                     .toList();
             rows.addAll(existingRows);
-        }
-        rows.forEach(row -> gridPane.getChildren().addAll(row.cb, row.substitution, row.value));
+        } else
+            rows.add(new Row());
+        rows.forEach(row -> gridPane.addRow(gridPane.getRowCount(), row.cb, row.substitution, row.value));
 
         // Wrap the GridPane in a vertical ScrollPane.
-        final var gridScrollPane = createScrollPane();
-        gridScrollPane.setContent(gridPane);
+        // We need to set the width, or it just grows out of control.
+        final var gridScrollPane = Shared.createStandardScrollPane(gridPane);
 
         // *** BUTTON PANEL
         addButton.setTooltip(new Tooltip("Add a row to the substitution table."));
@@ -134,14 +158,13 @@ final public class Editor extends BorderPane {
         saveButton.setTooltip(new Tooltip("Verify and save Fluke."));
 
         final var buttonBox = new HBox(addButton, deleteButton, saveButton);
-        buttonBox.setPadding(new Insets(15));
         buttonBox.setAlignment(Pos.CENTER);
-        buttonBox.setSpacing(100);
+        buttonBox.setSpacing(20);
 
         addButton.setOnAction((final ActionEvent e) -> {
             final var row = new Row();
             rows.add(row);
-            gridPane.addRow(gridPane.getRowConstraints().size(), row.cb, row.substitution, row.value);
+            gridPane.addRow(gridPane.getRowCount(), row.cb, row.substitution, row.value);
 
             // Modify the UI.
             processDeleteButton();
@@ -163,51 +186,23 @@ final public class Editor extends BorderPane {
             processDeleteButton();
         });
 
-        saveButton.setOnAction(e -> Editor.this.getInputs());
+        saveButton.setOnAction(e -> EditorPane.this.getInputs());
 
         // Put everything together in a BorderPane.
         final var leftPane = new BorderPane();
-        leftPane.setPadding(new Insets(20));
         leftPane.setCenter(gridScrollPane);
         leftPane.setBottom(buttonBox);
+        leftPane.setPrefWidth(LEFT_WIDTH);
+        BorderPane.setMargin(leftPane, new Insets(10));
+        BorderPane.setMargin(buttonBox, new Insets(10));
 
-        // *** Create the central pane for the title and story.
-        final var titleBox = new HBox();
-        titleBox.setSpacing(10);
-        titleBox.setPadding(new Insets(10));
-        final var titleLabel = new Label("Title:");
-        titleLabel.setTextAlignment(TextAlignment.RIGHT);
-        titleLabel.setLabelFor(title);
-        titleBox.getChildren().addAll(titleLabel, title);
-
-        // *** Create the center pane.
-        text.setWrapText(true);
-        final var textScrollPane = createScrollPane();
-        textScrollPane.setContent(text);
-
-        final var centerPane = new BorderPane();
-        centerPane.setTop(titleBox);
-        centerPane.setCenter(textScrollPane);
-
-        title.onKeyTypedProperty().set(evt -> checkFinished());
-        text.onKeyTypedProperty().set(evt -> checkFinished());
+        // Connect the storyPane widgets to the state of the Save button.
+        storyPane.title.onKeyTypedProperty().set(evt -> checkUnfinished());
+        storyPane.story.onKeyTypedProperty().set(evt -> checkUnfinished());
 
         setLeft(leftPane);
-        setCenter(centerPane);
-        checkFinished();
-    }
-
-    private ScrollPane createScrollPane() {
-        final var scrollPane = new ScrollPane();
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        scrollPane.setFitToWidth(true);
-
-        // Do not allow horizontal scrolling.
-        scrollPane.addEventFilter(ScrollEvent.SCROLL,
-                evt -> { if (evt.getDeltaX() != 0) evt.consume(); });
-
-        return scrollPane;
+        setCenter(storyPane);
+        checkUnfinished();
     }
 
     /**
@@ -223,8 +218,8 @@ final public class Editor extends BorderPane {
      * Check to see if the basic structure is complete, i.e. we have rows, and a title,
      * and text. If we do, then set the save button.
      */
-    private void checkFinished() {
-        saveButton.setDisable(rows.size() == 0 || title.getText().isBlank() || text.getText().isBlank());
+    private void checkUnfinished() {
+        saveButton.setDisable(rows.size() == 0 || storyPane.checkUnfinished());
     }
 
     /**

@@ -8,7 +8,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -17,8 +16,8 @@ import java.nio.file.Paths;
 public class RosanjinTalk extends Application {
     @Override
     public void start(final Stage stage) {
-        final var root = new Editor();
-        final var scene = new Scene(root, 800, 500);
+        final var root = new EditorPane();
+        final var scene = new Scene(root, EditorPane.width(), EditorPane.height());
 //        final var root = new SplashScreen(stage);
 //        final var scene = new Scene(root, 400, 500);
         stage.setScene(scene);
