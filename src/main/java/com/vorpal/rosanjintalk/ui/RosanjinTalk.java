@@ -17,9 +17,10 @@ import java.nio.file.Paths;
 public class RosanjinTalk extends Application {
     @Override
     public void start(final Stage stage) {
-//        final var root = new CreatePanel();
-        final var root = new SplashScreen(stage);
-        final var scene = new Scene(root, 400, 500);
+        final var root = new Editor();
+        final var scene = new Scene(root, 800, 500);
+//        final var root = new SplashScreen(stage);
+//        final var scene = new Scene(root, 400, 500);
         stage.setScene(scene);
 
         stage.setScene(scene);
