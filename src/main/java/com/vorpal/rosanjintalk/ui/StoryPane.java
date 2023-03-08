@@ -59,8 +59,8 @@ public final class StoryPane extends BorderPane {
         setCenter(scrollPane);
 
         if (fluke != null) {
-            title.setText(fluke.name());
-            story.setText(fluke.text());
+            title.setText(fluke.title());
+            story.setText(fluke.story());
         }
     }
 
