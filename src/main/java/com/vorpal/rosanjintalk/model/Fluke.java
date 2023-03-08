@@ -22,8 +22,9 @@ import com.vorpal.rosanjintalk.ui.RosanjinTalk;
  * @param inputs The list of inputs to the text for substitution. Key 1, for example, will prompt inputs[1] and then
  *               substitute any occurrences of "{1}" in the text. with the response.
  */
-public record Fluke(String name, Map<Integer, String> inputs, String text) {
+public record Fluke(String filename, String name, Map<Integer, String> inputs, String text) {
     public Fluke {
+        Objects.requireNonNull(filename);
         Objects.requireNonNull(name);
         Objects.requireNonNull(inputs);
         Objects.requireNonNull(text);
@@ -45,12 +46,10 @@ public record Fluke(String name, Map<Integer, String> inputs, String text) {
 
     /**
      * Save the contents as a zipped file of JSON as a .fluke file.
-     * @param filename the name of the file. If it has no fluke extension, fluke is added.
      */
-    public void save(final String filename) {
+    public void save() {
         final var flukeFilename = filename.endsWith(".fluke") ? filename : filename + ".fluke";
-        final var path = RosanjinTalk.getFlukePath();
-        Objects.requireNonNull(path);
+        final var path = Objects.requireNonNull(RosanjinTalk.getFlukePath());
         final var flukePath = path.resolve(flukeFilename);
 
         try {
