@@ -111,7 +111,7 @@ public class SplashScreen extends BorderPane {
                     populateFiles();
                     fileList.getSelectionModel().selectIndices(selectedIdx);
                 } catch (final IOException ex) {
-                    RosanjinTalk.recoverableError("Could not copy file:\n\n" + uri + "\n\nto:\n\n" + flukePath);
+                    Shared.recoverableError("Could not copy file:\n\n" + uri + "\n\nto:\n\n" + flukePath);
                 }
             }
         });
@@ -119,11 +119,11 @@ public class SplashScreen extends BorderPane {
         buttonDelete.setOnAction(e -> {
             // Delete the currently active file in the list after prompting.
             final var filename = fileList.getSelectionModel().selectedItemProperty().getValue();
-            final var response = RosanjinTalk.confirmationRequest("Are you sure you want to delete: " + filename);
+            final var response = Shared.confirmationRequest("Are you sure you want to delete: " + filename);
             if (response) {
                 final var selectedIdx = fileList.getSelectionModel().getSelectedIndex();
                 if (!flukePath.resolve(filename).toFile().delete())
-                    RosanjinTalk.recoverableError("Could not delete file: " + filename);
+                    Shared.recoverableError("Could not delete file: " + filename);
                 populateFiles();
                 final var newSelectedIdx = selectedIdx >= files.size() ? selectedIdx - 1 : selectedIdx;
                 fileList.getSelectionModel().selectIndices(newSelectedIdx);
@@ -134,7 +134,7 @@ public class SplashScreen extends BorderPane {
             try {
                 Desktop.getDesktop().open(flukePath.toFile());
             } catch (final IOException ex) {
-                RosanjinTalk.unrecoverableError("Could not open file viewer.");
+                Shared.unrecoverableError("Could not open file viewer.");
             }
         });
 
@@ -164,7 +164,7 @@ public class SplashScreen extends BorderPane {
                     .toList();
             files.setAll(result);
         } catch (final IOException e) {
-            RosanjinTalk.unrecoverableError("Could not populate fluke file list.");
+            Shared.unrecoverableError("Could not populate fluke file list.");
         }
     }
 }

@@ -12,22 +12,30 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * An input panel to manage the substitution information for the main text.
+ * An input panel to manage the substitution information for the main story.
  */
 final public class EditorPane extends BorderPane {
+    // General spacing.
+    private static final int SPACING = 10;
+    private static final int BUTTON_SPACING = 20;
+
     // The left panel is a fixed width, and the minimum starting width of the story is suggested.
     // These are used to initialize the scene coordinates.
     private static final int LEFT_WIDTH = 300;
     private static final int STORY_WIDTH = 400;
     private static final int HEIGHT = 400;
+
+    // Column properties for the GridPanel.
+    private static final int CB_COLUMN_WIDTH = 10;
+    private static final int SUB_COLUMN_WIDTH = 20;
+    private static final int DESC_COLUMN_WIDTH = 70;
 
     // Event handler for all checkboxes in rows.
     final EventHandler<ActionEvent> deleteCheck = (final ActionEvent e) -> processDeleteButton();
@@ -39,21 +47,21 @@ final public class EditorPane extends BorderPane {
         final int index;
         final CheckBox cb = new CheckBox();
         final TextField substitution = new TextField();
-        final TextField value = new TextField();
+        final TextField prompt = new TextField();
 
         /**
          * Create a row from existing data. Make sure that the roxIdx is higher than the idx.
          * @param idx          the substitution index of the row
-         * @param description  the description for the row
+         * @param prompt  the description for the row
          */
-        public Row(final int idx, final String description) {
+        public Row(final int idx, final String prompt) {
             // Bump up the rowIdx if necessary to make sure that we are not repeating values.
             if (idx > rowIdx)
                 rowIdx = idx + 1;
 
             index = idx;
             substitution.setText("{" + idx + "}");
-            value.setText(description);
+            this.prompt.setText(prompt);
             common();
         }
 
@@ -75,6 +83,9 @@ final public class EditorPane extends BorderPane {
             substitution.setAlignment(Pos.CENTER);
             substitution.setDisable(true);
             substitution.setFocusTraversable(false);
+
+            // Disable save button if there are empty rows.
+            prompt.setOnKeyTyped(e -> EditorPane.this.modifySaveButtonState());
         }
     }
 
@@ -94,21 +105,26 @@ final public class EditorPane extends BorderPane {
         return HEIGHT;
     }
 
-    private String filename = null;
+    private String filename;
+    private final Stage stage;
     private final List<Row> rows = new ArrayList<>();
     private final Button addButton = new Button("Add row");
     private final Button deleteButton = new Button("Delete Row(s)");
     private final Button saveButton = new Button("Save");
     private final StoryPane storyPane;
 
-    public EditorPane() {
+    public EditorPane(final Stage stage) {
         super();
+        this.stage = stage;
+        filename = null;
         storyPane = new StoryPane();
         createUI(null);
     }
 
-    public EditorPane(final Fluke fluke) {
+    public EditorPane(final Stage stage, final Fluke fluke) {
         super();
+        this.stage = stage;
+        filename = fluke.filename();
         storyPane = new StoryPane(fluke);
         createUI(fluke);
     }
@@ -116,16 +132,16 @@ final public class EditorPane extends BorderPane {
     private void createUI(final Fluke fluke) {
         // *** SUBSTITUTION GRID
         final var gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(SPACING);
+        gridPane.setPadding(new Insets(SPACING));
 
         // Constraints on the columns.
         final var c0 = new ColumnConstraints();
-        c0.setPercentWidth(10);
+        c0.setPercentWidth(CB_COLUMN_WIDTH);
         final var c1 = new ColumnConstraints();
-        c1.setPercentWidth(20);
+        c1.setPercentWidth(SUB_COLUMN_WIDTH);
         final var c2 = new ColumnConstraints();
-        c2.setPercentWidth(70);
+        c2.setPercentWidth(DESC_COLUMN_WIDTH);
         gridPane.getColumnConstraints().addAll(c0, c1, c2);
 
         final var substitutionLabel = new Label("Sub");
@@ -146,7 +162,7 @@ final public class EditorPane extends BorderPane {
             rows.addAll(existingRows);
         } else
             rows.add(new Row());
-        rows.forEach(row -> gridPane.addRow(gridPane.getRowCount(), row.cb, row.substitution, row.value));
+        rows.forEach(row -> gridPane.addRow(gridPane.getRowCount(), row.cb, row.substitution, row.prompt));
 
         // Wrap the GridPane in a vertical ScrollPane.
         // We need to set the width, or it just grows out of control.
@@ -159,22 +175,23 @@ final public class EditorPane extends BorderPane {
 
         final var buttonBox = new HBox(addButton, deleteButton, saveButton);
         buttonBox.setAlignment(Pos.CENTER);
-        buttonBox.setSpacing(20);
+        buttonBox.setSpacing(BUTTON_SPACING);
 
         addButton.setOnAction((final ActionEvent e) -> {
             final var row = new Row();
             rows.add(row);
-            gridPane.addRow(gridPane.getRowCount(), row.cb, row.substitution, row.value);
+            gridPane.addRow(gridPane.getRowCount(), row.cb, row.substitution, row.prompt);
 
             // Modify the UI.
             processDeleteButton();
+            modifySaveButtonState();
         });
 
         deleteButton.setOnAction((final ActionEvent e) -> {
             // Remove the rows from the UI.
             rows.stream()
                     .filter(row -> row.cb.isSelected())
-                    .forEach(row -> gridPane.getChildren().removeAll(row.cb, row.substitution, row.value));
+                    .forEach(row -> gridPane.getChildren().removeAll(row.cb, row.substitution, row.prompt));
 
             // Remove the rows from the rows array.
             rows.removeAll(rows
@@ -184,25 +201,79 @@ final public class EditorPane extends BorderPane {
 
             // Modify the UI.
             processDeleteButton();
+            modifySaveButtonState();
         });
 
-        saveButton.setOnAction(e -> EditorPane.this.getInputs());
+        saveButton.setOnAction(e -> {
+            // This should never happen: the save button should prevent it..
+            if (!inputsValid()) {
+                Shared.recoverableError("There are empty prompts.");
+                return;
+            }
+
+            // Check to make sure that the substitutions are correct.
+            final var inputs = getInputs();
+            final var title = storyPane.title.getText().trim();
+            final var story = storyPane.story.getText().trim();
+            final var substitutionSet = Fluke.allSubstituations(title, story);
+
+            // Check to see if we are missing any keys that are defined in the story.
+            // Cannot save if this is the case.
+            if (!inputs.keySet().containsAll(substitutionSet)) {
+                substitutionSet.removeAll(inputs.keySet());
+                Shared.recoverableError("There are undefined keys used in the story:\n\n" +
+                        Shared.setToString(substitutionSet)
+                );
+                return;
+            }
+
+            // Check to see if we have extra keys.
+            if (!substitutionSet.containsAll(inputs.keySet())) {
+                final var keySet = new HashSet<>(inputs.keySet());
+                keySet.removeAll(substitutionSet);
+                final var response = Shared.confirmationRequest("There are extra substitutions defined:\n\n" +
+                        Shared.setToString(keySet) +
+                        "\n\nSave anyways?");
+                if (!response)
+                    return;
+            }
+
+            if (filename == null) {
+                // Display a file save box.
+                final var fileChooser = new FileChooser();
+                fileChooser.setTitle("Save Fluke");
+                final var flukePath = Objects.requireNonNull(RosanjinTalk.getFlukePath());
+                fileChooser.setInitialDirectory(flukePath.toFile());
+                final var extFilter = new FileChooser.ExtensionFilter("Fluke files", "*.fluke");
+                fileChooser.getExtensionFilters().add(extFilter);
+                final var selectedFile = fileChooser.showSaveDialog(stage);
+                if (selectedFile == null)
+                    return;
+                if (!Objects.equals(selectedFile.getParent(), flukePath.toString())) {
+                    Shared.recoverableError("Fluke files must be saved to the fluke directory.");
+                    return;
+                }
+                filename = selectedFile.getName();
+            }
+
+            new Fluke(filename, title, inputs, story).save();
+        });
 
         // Put everything together in a BorderPane.
         final var leftPane = new BorderPane();
         leftPane.setCenter(gridScrollPane);
         leftPane.setBottom(buttonBox);
         leftPane.setPrefWidth(LEFT_WIDTH);
-        BorderPane.setMargin(leftPane, new Insets(10));
-        BorderPane.setMargin(buttonBox, new Insets(10));
+        BorderPane.setMargin(leftPane, new Insets(SPACING));
+        BorderPane.setMargin(buttonBox, new Insets(SPACING));
 
         // Connect the storyPane widgets to the state of the Save button.
-        storyPane.title.onKeyTypedProperty().set(evt -> checkUnfinished());
-        storyPane.story.onKeyTypedProperty().set(evt -> checkUnfinished());
+        storyPane.title.onKeyTypedProperty().set(evt -> modifySaveButtonState());
+        storyPane.story.onKeyTypedProperty().set(evt -> modifySaveButtonState());
 
         setLeft(leftPane);
         setCenter(storyPane);
-        checkUnfinished();
+        modifySaveButtonState();
     }
 
     /**
@@ -216,10 +287,13 @@ final public class EditorPane extends BorderPane {
 
     /**
      * Check to see if the basic structure is complete, i.e. we have rows, and a title,
-     * and text. If we do, then set the save button.
+     * and story. If we do, then set the save button.
      */
-    private void checkUnfinished() {
-        saveButton.setDisable(rows.size() == 0 || storyPane.checkUnfinished());
+    private void modifySaveButtonState() {
+        System.out.println("Here");
+        final var emptyRows = rows.stream()
+                .anyMatch(r -> r.prompt.getText().isBlank());
+        saveButton.setDisable(rows.size() == 0 || emptyRows || storyPane.checkUnfinished());
     }
 
     /**
@@ -235,12 +309,11 @@ final public class EditorPane extends BorderPane {
      */
     private boolean inputsValid() {
         final var emptyRow = rows.stream()
-                .filter(r -> r.value.getText().trim().isEmpty())
+                .filter(r -> r.prompt.getText().trim().isEmpty())
                 .findFirst();
 
         // If there is an empty row, then provide it with the focus and do not return.
-        if (emptyRow.isPresent())
-            emptyRow.ifPresent(r -> r.value.requestFocus());
+        emptyRow.ifPresent(r -> r.prompt.requestFocus());
         return emptyRow.isEmpty();
     }
 
@@ -251,6 +324,6 @@ final public class EditorPane extends BorderPane {
      */
     private Map<Integer, String> getInputs() {
         return rows.stream()
-                .collect(Collectors.toUnmodifiableMap(r -> r.index, r -> r.value.getText()));
+                .collect(Collectors.toUnmodifiableMap(r -> r.index, r -> r.prompt.getText()));
     }
 }
