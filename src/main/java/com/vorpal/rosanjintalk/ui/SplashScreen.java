@@ -48,7 +48,7 @@ public class SplashScreen extends BorderPane {
         final var rosanjinImageView = new ImageView(rosanjinImage);
 
         final var vbox = new VBox(5);
-        final var rosanjinLabel = new Label("RosanjinTalk");
+        final var rosanjinLabel = new Label(Shared.TITLE);
         rosanjinLabel.setFont(Font.font("Comic Sans MS", 30));
         final var authorLabel = new Label("By Sebastian Raaphorst");
         final var userLabel = new Label("for smol boi");
