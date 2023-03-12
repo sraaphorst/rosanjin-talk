@@ -1,8 +1,8 @@
-package com.vorpal.rosanjintalk.view;
+package com.vorpal.rosanjintalk.view.management;
 
 // By Sebastian Raaphorst, 2023.
 
-import com.vorpal.rosanjintalk.controller.ManagementController;
+import com.vorpal.rosanjintalk.ui.Shared;
 import javafx.scene.layout.BorderPane;
 
 public final class ManagementView extends BorderPane {

@@ -1,9 +1,10 @@
-package com.vorpal.rosanjintalk.controller;
+package com.vorpal.rosanjintalk.controller.management;
 
 // By Sebastian Raaphorst, 2023.
 
+import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.ui.Shared;
-import com.vorpal.rosanjintalk.view.ManagementButtonView;
+import com.vorpal.rosanjintalk.view.management.ManagementButtonView;
 import javafx.event.ActionEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -104,13 +105,8 @@ public final class ManagementButtonController implements Controller<ManagementBu
      * @param disable true if the buttons should be disabled, and false if they should be enabled
      */
     public void setButtonsDisable(boolean disable) {
-        System.out.println("setButtonsDisable: " + disable);
-        System.out.println("Play: " + view.playButton);
-        System.out.println("Edit: " + view.editButton);
-        System.out.println("Delete: " + view.deleteButton);
         view.playButton.setDisable(disable);
         view.editButton.setDisable(disable);
         view.deleteButton.setDisable(disable);
-        System.out.println(view.playButton.disabledProperty().get());
     }
 }

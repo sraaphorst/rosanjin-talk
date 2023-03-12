@@ -1,8 +1,9 @@
-package com.vorpal.rosanjintalk.controller;
+package com.vorpal.rosanjintalk.controller.management;
 
 // By Sebastian Raaphorst, 2023.
 
-import com.vorpal.rosanjintalk.view.ManagementView;
+import com.vorpal.rosanjintalk.controller.Controller;
+import com.vorpal.rosanjintalk.view.management.ManagementView;
 import javafx.stage.Stage;
 
 public final class ManagementController implements Controller<ManagementView> {

@@ -1,9 +1,10 @@
-package com.vorpal.rosanjintalk.controller;
+package com.vorpal.rosanjintalk.controller.management;
 
 // By Sebastian Raaphorst, 2023.
 
+import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.ui.Shared;
-import com.vorpal.rosanjintalk.view.FlukeSelectorView;
+import com.vorpal.rosanjintalk.view.management.FlukeSelectorView;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,13 +21,10 @@ public final class FlukeSelectorController implements Controller<FlukeSelectorVi
         view = new FlukeSelectorView();
         this.managementController = managementController;
         flukePath = Objects.requireNonNull(Shared.getFlukePath());
-        System.out.println("FlukeSelectorController: " + this + " view: " + view);
-        System.out.println("FlukeSelectorView files: " + view.files + " list: " + view.fileList);
     }
 
     @Override
     public void configure() {
-        System.out.println("FlukeSelectorController: " + this + " view: " + view);
         view.fileList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             final var disabled = newValue == null;
             managementController.getManagementButtonController().setButtonsDisable(disabled);
@@ -75,7 +73,6 @@ public final class FlukeSelectorController implements Controller<FlukeSelectorVi
      * Repopulate the file view by reading in the file list from the fluke path.
      */
     void populateFiles() {
-        System.out.println("FlukeSelectorController: " + this + " populateFiles " + view);
         final List<String> result;
         try (final var walk = Files.walk(flukePath, 1)) {
             result = walk
@@ -84,9 +81,7 @@ public final class FlukeSelectorController implements Controller<FlukeSelectorVi
                     .map(p -> p.toFile().getName())
                     .sorted()
                     .toList();
-            result.forEach(f -> System.out.println("Read file: " + f));
             view.files.setAll(result);
-            System.out.println("FlukeSelectorView files: " + view.files + " list: " + view.fileList);
         } catch (final IOException e) {
             Shared.unrecoverableError("Could not populate fluke file list.");
         }

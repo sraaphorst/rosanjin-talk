@@ -23,9 +23,11 @@ public final class Shared {
     public static final String ERROR_TITLE = TITLE + " Error";
     public static final String CONFIRMATION_TITLE = TITLE + " Confirmation";
 
+    public static final double SPACING = 10;
+//    public static final double  = 20;
     public static final double HORIZONTAL_SPACING = 30;
     public static final double VERTICAL_SPACING = 20;
-    public static final Insets PADDING = new Insets(20);
+    public static final Insets PADDING = new Insets(SPACING);
 
     private Shared() {}
 

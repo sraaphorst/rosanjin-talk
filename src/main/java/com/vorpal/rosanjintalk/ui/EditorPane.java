@@ -322,7 +322,7 @@ final public class EditorPane extends BorderPane {
      * @return the input map for a Fluke.
      */
     private Map<Integer, String> getInputs() {
-        return rows.stream()
-                .collect(Collectors.toUnmodifiableMap(r -> r.index, r -> r.prompt.getText()));
+        return rows.str.collect(Collectors.toUnmodifiableMap(r -> r.index, r -> r.prompt.getText()));
+
     }
 }

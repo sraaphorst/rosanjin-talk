@@ -2,7 +2,7 @@ package com.vorpal.rosanjintalk;
 
 // By Sebastian Raaphorst, 2023.
 
-import com.vorpal.rosanjintalk.controller.ManagementController;
+import com.vorpal.rosanjintalk.controller.management.ManagementController;
 import com.vorpal.rosanjintalk.ui.Shared;
 import javafx.application.Application;
 import javafx.application.Platform;

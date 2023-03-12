@@ -1,9 +1,8 @@
-package com.vorpal.rosanjintalk.view;
+package com.vorpal.rosanjintalk.view.management;
 
 // By Sebastian Raaphorst, 2023.
 
 import com.vorpal.rosanjintalk.ui.Shared;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
