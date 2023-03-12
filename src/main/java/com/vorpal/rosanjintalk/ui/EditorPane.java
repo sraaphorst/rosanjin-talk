@@ -222,7 +222,7 @@ final public class EditorPane extends BorderPane {
             if (!inputs.keySet().containsAll(substitutionSet)) {
                 substitutionSet.removeAll(inputs.keySet());
                 Shared.recoverableError("There are undefined keys used in the story:\n\n" +
-                        Shared.setToString(substitutionSet)
+                        Shared.promptIndexSetToString(substitutionSet)
                 );
                 return;
             }
@@ -232,7 +232,7 @@ final public class EditorPane extends BorderPane {
                 final var keySet = new HashSet<>(inputs.keySet());
                 keySet.removeAll(substitutionSet);
                 final var response = Shared.confirmationRequest("There are extra substitutions defined:\n\n" +
-                        Shared.setToString(keySet) +
+                        Shared.promptIndexSetToString(keySet) +
                         "\n\nSave anyways?");
                 if (!response)
                     return;
@@ -242,7 +242,7 @@ final public class EditorPane extends BorderPane {
                 // Display a file save box.
                 final var fileChooser = new FileChooser();
                 fileChooser.setTitle("Save Fluke");
-                final var flukePath = Objects.requireNonNull(RosanjinTalk.getFlukePath());
+                final var flukePath = Objects.requireNonNull(Shared.getFlukePath());
                 fileChooser.setInitialDirectory(flukePath.toFile());
                 final var extFilter = new FileChooser.ExtensionFilter("Fluke files", "*.fluke");
                 fileChooser.getExtensionFilters().add(extFilter);
