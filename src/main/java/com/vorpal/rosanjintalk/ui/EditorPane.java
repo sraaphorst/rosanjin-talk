@@ -290,7 +290,6 @@ final public class EditorPane extends BorderPane {
      * and story. If we do, then set the save button.
      */
     private void modifySaveButtonState() {
-        System.out.println("Here");
         final var emptyRows = rows.stream()
                 .anyMatch(r -> r.prompt.getText().isBlank());
         saveButton.setDisable(rows.size() == 0 || emptyRows || storyPane.checkUnfinished());

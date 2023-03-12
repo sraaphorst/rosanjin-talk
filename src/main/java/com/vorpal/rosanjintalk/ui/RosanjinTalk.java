@@ -23,8 +23,11 @@ public class RosanjinTalk extends Application {
     public void start(final Stage stage) {
         stage.setTitle(Shared.TITLE);
 
-        final var root = new EditorPane(stage);
-        final var scene = new Scene(root, EditorPane.width(), EditorPane.height());
+//        final var root = new EditorPane(stage);
+//        final var scene = new Scene(root, EditorPane.width(), EditorPane.height());
+
+        final var root = new SplashScreen(stage);
+        final var scene = new Scene(root, 400, 500);
 
         final var closeKeys = KeyCodeCombination.valueOf("Shortcut+W");
         scene.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
@@ -33,9 +36,6 @@ public class RosanjinTalk extends Application {
                 e.consume();
             }
         });
-
-//        final var root = new SplashScreen(stage);
-//        final var scene = new Scene(root, 400, 500);
 
         stage.setScene(scene);
 
