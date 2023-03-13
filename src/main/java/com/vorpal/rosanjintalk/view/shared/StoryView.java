@@ -1,4 +1,4 @@
-package com.vorpal.rosanjintalk.view.editor;
+package com.vorpal.rosanjintalk.view.shared;
 
 // By Sebastian Raaphorst, 2023.
 

@@ -33,7 +33,7 @@ public class EditorButtonController implements Controller<EditorButtonView> {
      */
     void configureSaveButtonState() {
         view.saveButton.setDisable(editorController.inputsController.isIncomplete() ||
-                editorController.storyController.isIncomplete() ||
+                editorController.editStoryController.isIncomplete() ||
                 !editorController.isModified()
         );
     }

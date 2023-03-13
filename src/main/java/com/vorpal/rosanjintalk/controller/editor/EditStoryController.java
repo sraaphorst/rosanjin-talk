@@ -4,18 +4,18 @@ package com.vorpal.rosanjintalk.controller.editor;
 
 import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.model.Fluke;
-import com.vorpal.rosanjintalk.view.editor.StoryView;
+import com.vorpal.rosanjintalk.view.shared.StoryView;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
 import java.util.Set;
 
-public class StoryController implements Controller<StoryView> {
+public class EditStoryController implements Controller<StoryView> {
     private final StoryView view;
     private final EditorController editorController;
 
-    public StoryController(final EditorController editorController,
-                           final Fluke fluke) {
+    public EditStoryController(final EditorController editorController,
+                               final Fluke fluke) {
         view = new StoryView();
         this.editorController = editorController;
 
@@ -61,22 +61,6 @@ public class StoryController implements Controller<StoryView> {
      */
     public String getStory() {
         return view.story.getText().trim();
-    }
-
-    /**
-     * Set the title from the trimmed text.
-     * @param text the text to trim and set as the title
-     */
-    public void setTitle(final String text) {
-        view.title.setText(text.trim());
-    }
-
-    /**
-     * Set the story from the trimmed text.
-     * @param text the text to trim and set as the story
-     */
-    public void setStory(final String text) {
-        view.story.setText(text.trim());
     }
 
     /**

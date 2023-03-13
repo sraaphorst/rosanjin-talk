@@ -3,6 +3,7 @@ package com.vorpal.rosanjintalk.view.editor;
 // By Sebastian Raaphorst, 2023.
 
 import com.vorpal.rosanjintalk.shared.Shared;
+import com.vorpal.rosanjintalk.view.shared.StoryView;
 import javafx.scene.layout.BorderPane;
 
 public class EditorView extends BorderPane {

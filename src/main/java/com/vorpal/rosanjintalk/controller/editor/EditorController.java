@@ -21,7 +21,7 @@ public class EditorController implements Controller<EditorView> {
     private final Stage stage;
     final InputsController inputsController;
     final EditorButtonController editorButtonController;
-    final StoryController storyController;
+    final EditStoryController editStoryController;
     final Path flukePath;
 
     // The filename must be mutable so that if a new Fluke is created,
@@ -39,11 +39,11 @@ public class EditorController implements Controller<EditorView> {
 
         inputsController = new InputsController(this, fluke);
         editorButtonController = new EditorButtonController(this);
-        storyController = new StoryController(this, fluke);
+        editStoryController = new EditStoryController(this, fluke);
         view = new EditorView(
                 inputsController.getView(),
                 editorButtonController.getView(),
-                storyController.getView()
+                editStoryController.getView()
         );
         flukePath = Objects.requireNonNull(Shared.getFlukePath());
         filename = fluke == null ? null : fluke.filename();
@@ -53,7 +53,7 @@ public class EditorController implements Controller<EditorView> {
     @Override
     public void configure() {
         inputsController.configure();
-        storyController.configure();
+        editStoryController.configure();
 
         // The EditorButtonController must be configured last as, to set the initial state of the
         // buttons, it depends on values configured in the other two controllers.
@@ -74,7 +74,7 @@ public class EditorController implements Controller<EditorView> {
         // TODO: Now we should not have to do this because blank prompts disable the save button.
         // Check to make sure the substitutions are correct.
         final var inputs = inputsController.getInputs();
-        final var substitutions = storyController.getSubstitutions();
+        final var substitutions = editStoryController.getSubstitutions();
 
         // If we are missing inputs that are used in the story, alert and abort.
         if (!inputs.keySet().containsAll(substitutions)) {
@@ -112,7 +112,7 @@ public class EditorController implements Controller<EditorView> {
             filename = file.getName();
         }
 
-        new Fluke(filename, storyController.getTitle(), inputs, storyController.getStory()).save();
+        new Fluke(filename, editStoryController.getTitle(), inputs, editStoryController.getStory()).save();
         markUnmodified();
 
         // The focus shifts to the title since the save button is focused and ends up disabled
