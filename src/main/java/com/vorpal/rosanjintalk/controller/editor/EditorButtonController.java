@@ -32,9 +32,9 @@ public class EditorButtonController implements Controller<EditorButtonView> {
      * Configure the state of the buttons in this panel depending on the other panels.
      */
     void configureSaveButtonState() {
-        view.saveButton.setDisable(
-                editorController.inputsController.isIncomplete() ||
-                editorController.storyController.isIncomplete()
+        view.saveButton.setDisable(editorController.inputsController.isIncomplete() ||
+                editorController.storyController.isIncomplete() ||
+                !editorController.isModified()
         );
     }
 

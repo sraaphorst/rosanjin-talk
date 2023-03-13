@@ -5,6 +5,8 @@ package com.vorpal.rosanjintalk.controller.editor;
 import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.model.Fluke;
 import com.vorpal.rosanjintalk.view.editor.StoryView;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 import java.util.Set;
 
@@ -27,13 +29,17 @@ public class StoryController implements Controller<StoryView> {
 
     @Override
     public void configure() {
+        final var changeListener = new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                editorController.editorButtonController.configureSaveButtonState();
+                editorController.markModified();
+            }
+        };
+
         // Set the handlers to recalculate the state of the save button when typing is recorded.
-        view.title.textProperty().addListener((observable, oldValue, newValue) ->
-                editorController.editorButtonController.configureSaveButtonState()
-        );
-        view.story.textProperty().addListener((observable, oldValue, newValue) ->
-                editorController.editorButtonController.configureSaveButtonState()
-        );
+        view.title.textProperty().addListener(changeListener);
+        view.story.textProperty().addListener(changeListener);
     }
 
     @Override

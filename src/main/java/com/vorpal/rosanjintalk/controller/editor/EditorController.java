@@ -4,7 +4,8 @@ package com.vorpal.rosanjintalk.controller.editor;
 
 import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.model.Fluke;
-import com.vorpal.rosanjintalk.ui.Shared;
+import com.vorpal.rosanjintalk.shared.Shared;
+import com.vorpal.rosanjintalk.view.editor.EditRowView;
 import com.vorpal.rosanjintalk.view.editor.EditorView;
 import javafx.stage.Stage;
 
@@ -27,8 +28,15 @@ public class EditorController implements Controller<EditorView> {
     // the user is prompted once for a filename. Otherwise, the old file is overwritten.
     private String filename;
 
+    // Determine if any modifications have been made.
+    private boolean modified;
+
     public EditorController(final Stage stage, final Fluke fluke) {
         this.stage = stage;
+
+        // Reset the indices so when editing a new Fluke file, we begin the substitutions at 1.
+        EditRowView.resetIndex();
+
         inputsController = new InputsController(this, fluke);
         editorButtonController = new EditorButtonController(this);
         storyController = new StoryController(this, fluke);
@@ -39,6 +47,7 @@ public class EditorController implements Controller<EditorView> {
         );
         flukePath = Objects.requireNonNull(Shared.getFlukePath());
         filename = fluke == null ? null : fluke.filename();
+        modified = false;
     }
 
     @Override
@@ -104,5 +113,34 @@ public class EditorController implements Controller<EditorView> {
         }
 
         new Fluke(filename, storyController.getTitle(), inputs, storyController.getStory()).save();
+        markUnmodified();
+
+        // The focus shifts to the title since the save button is focused and ends up disabled
+        // after the story is saved, so remove the focus by doing this.
+        this.view.requestFocus();
+    }
+
+    /**
+     * Mark the edited Fluke as being modified.
+     */
+    void markModified() {
+        modified = true;
+        editorButtonController.configureSaveButtonState();
+    }
+
+    /**
+     * Mark the edited Fluke as being unmodified.
+     */
+    void markUnmodified() {
+        modified = false;
+        editorButtonController.configureSaveButtonState();
+    }
+
+    /**
+     * Return whether the Fluke has been modified at all.
+     * @return modified status of Fluke
+     */
+    public boolean isModified() {
+        return modified;
     }
 }

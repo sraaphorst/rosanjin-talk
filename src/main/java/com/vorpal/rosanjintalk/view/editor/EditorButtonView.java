@@ -2,7 +2,7 @@ package com.vorpal.rosanjintalk.view.editor;
 
 // By Sebastian Raaphorst, 2023.
 
-import com.vorpal.rosanjintalk.ui.Shared;
+import com.vorpal.rosanjintalk.shared.Shared;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;

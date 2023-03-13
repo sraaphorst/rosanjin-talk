@@ -2,8 +2,10 @@ package com.vorpal.rosanjintalk.controller.management;
 
 // By Sebastian Raaphorst, 2023.
 
+import com.vorpal.rosanjintalk.RosanjinTalk;
 import com.vorpal.rosanjintalk.controller.Controller;
-import com.vorpal.rosanjintalk.ui.Shared;
+import com.vorpal.rosanjintalk.model.Fluke;
+import com.vorpal.rosanjintalk.shared.Shared;
 import com.vorpal.rosanjintalk.view.management.ManagementButtonView;
 import javafx.event.ActionEvent;
 import javafx.stage.FileChooser;
@@ -62,9 +64,14 @@ public final class ManagementButtonController implements Controller<ManagementBu
             }
         });
 
-        view.newButton.setOnAction(e -> {});
+        view.newButton.setOnAction(e -> RosanjinTalk.showEditor(stage, null));
 
-        view.editButton.setOnAction(e -> {});
+        view.editButton.setOnAction(e -> {
+            final var flukeSelectorController = managementController.getFlukeSelectorController();
+            final var filename = flukeSelectorController.getSelectedValue();
+            final var fluke = Fluke.load(filename);
+            RosanjinTalk.showEditor(stage, fluke);
+        });
 
         view.deleteButton.setOnAction(e -> {
             final var flukeSelectorController = managementController.getFlukeSelectorController();

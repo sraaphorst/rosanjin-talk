@@ -29,7 +29,7 @@ public class EditRowView {
      */
     public EditRowView(final int idx, final String prompt) {
         if (idx > rowIdx)
-            rowIdx = idx + 1;
+            rowIdx = idx;
 
         this.idx = idx;
         this.prompt.setText(prompt);
@@ -44,5 +44,13 @@ public class EditRowView {
         sub.setDisable(true);
         sub.setAlignment(Pos.CENTER);
         sub.setFocusTraversable(false);
+    }
+
+    /**
+     * Reset the index to 0. This is necessary when switching Flukes or the number
+     * will just keep counting up.
+     */
+    public static void resetIndex() {
+        rowIdx = 0;
     }
 }

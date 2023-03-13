@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,8 +45,10 @@ public class InputsController implements Controller<InputsView> {
     public void configure() {
         // If the set of rows is non-empty, then row data was passed in by the Fluke.
         // The rows have been created, but not configured, so call configureRow on each.
-        if (!rows.isEmpty())
+        if (!rows.isEmpty()) {
+            rows.sort(Comparator.comparingInt(o -> o.idx));
             rows.forEach(this::configureRow);
+        }
 
         // Otherwise, just insert one empty row to give the user an indication on how to work.
         // Note that addRow adds an empty row and calls configureRow on it.
@@ -65,6 +68,7 @@ public class InputsController implements Controller<InputsView> {
         final var row = new EditRowView();
         rows.add(row);
         configureRow(row);
+        editorController.markModified();
     }
 
     /**
@@ -75,9 +79,10 @@ public class InputsController implements Controller<InputsView> {
      */
     private void configureRow(final EditRowView rowView) {
         rowView.cb.setOnAction(cbEventHandler);
-        rowView.prompt.textProperty().addListener((observable, oldValue, newValue) ->
-            editorController.editorButtonController.configureSaveButtonState()
-        );
+        rowView.prompt.textProperty().addListener((observable, oldValue, newValue) -> {
+            editorController.editorButtonController.configureSaveButtonState();
+            editorController.markModified();
+        });
         view.addRow(view.getRowCount(), rowView.cb, rowView.sub, rowView.prompt);
 
         // Recalculate the configuration state of the save button based on the contents of the new row.
@@ -102,6 +107,8 @@ public class InputsController implements Controller<InputsView> {
         // Update the button states.
         editorController.editorButtonController.configureSaveButtonState();
         editorController.editorButtonController.configureDeleteButtonState();
+
+        editorController.markModified();
     }
 
     /**

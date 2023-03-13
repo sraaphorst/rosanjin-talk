@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.vorpal.rosanjintalk.ui.Shared;
+import com.vorpal.rosanjintalk.shared.Shared;
 
 /**
  * This is an immutable model for storing a RosanjinTalk file, aka a Fluke.

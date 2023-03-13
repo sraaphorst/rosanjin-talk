@@ -3,7 +3,7 @@ package com.vorpal.rosanjintalk.controller.management;
 // By Sebastian Raaphorst, 2023.
 
 import com.vorpal.rosanjintalk.controller.Controller;
-import com.vorpal.rosanjintalk.ui.Shared;
+import com.vorpal.rosanjintalk.shared.Shared;
 import com.vorpal.rosanjintalk.view.management.FlukeSelectorView;
 
 import java.io.IOException;

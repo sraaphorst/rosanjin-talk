@@ -26,7 +26,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'com.vorpal.rosanjintalk'
-    mainClass = 'com.vorpal.rosanjintalk.ui.RosanjinTalk'
+    mainClass = 'com.vorpal.rosanjintalk.RosanjinTalk'
 }
 
 javafx {
