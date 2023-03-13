@@ -26,7 +26,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'com.vorpal.rosanjintalk'
-    mainClass = 'com.vorpal.rosanjintalk.ui.RosanjinTalk'
+    mainClass = 'com.vorpal.rosanjintalk.RosanjinTalk'
 }
 
 javafx {
@@ -36,7 +36,7 @@ javafx {
 
 dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:2.12.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.1")
+    implementation('com.fasterxml.jackson.core:jackson-databind:2.12.7.1')
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }

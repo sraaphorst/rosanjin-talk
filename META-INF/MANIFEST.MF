@@ -1,3 +1,2 @@
 Manifest-Version: 1.0
-Main-Class: com.vorpal.rosanjintalk.ui.RosanjinTalk
-
+Main-Class: com.vorpal.rosanjintalk.RosanjinTalk

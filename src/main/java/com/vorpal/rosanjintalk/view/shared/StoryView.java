@@ -1,8 +1,8 @@
-package com.vorpal.rosanjintalk.ui;
+package com.vorpal.rosanjintalk.view.shared;
 
 // By Sebastian Raaphorst, 2023.
 
-import com.vorpal.rosanjintalk.model.Fluke;
+import com.vorpal.rosanjintalk.shared.Shared;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -11,28 +11,19 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.TextAlignment;
 
-public final class StoryPane extends BorderPane {
-    final int TITLE_HEIGHT = 50;
-    final int STORY_HEIGHT = 200;
+public class StoryView extends BorderPane {
+    private static final int TITLE_HEIGHT = 50;
 
-    final TextField title = new TextField();
-    final TextArea story = new TextArea();
+    public final TextField title;
+    public final TextArea story;
 
-    public StoryPane() {
+    public StoryView() {
         super();
-        createUI(null);
-    }
-
-    public StoryPane(final Fluke fluke) {
-        super();
-        createUI(fluke);
-    }
-
-    private void createUI(final Fluke fluke) {
-        BorderPane.setMargin(this, new Insets(10));
-
-        // Create the title bar.
+        BorderPane.setMargin(this, Shared.PADDING);
         setPadding(new Insets(0, 20, 20, 20));
+
+        title = new TextField();
+
         final var titleLabel = new Label("Title:");
         titleLabel.setLabelFor(title);
         titleLabel.setAlignment(Pos.CENTER_LEFT);
@@ -49,22 +40,12 @@ public final class StoryPane extends BorderPane {
         titlePane.setMaxHeight(TITLE_HEIGHT);
         titlePane.setPrefHeight(TITLE_HEIGHT);
         titlePane.prefWidthProperty().bind(widthProperty());
-
         setTop(titlePane);
 
+        story = new TextArea();
         story.setWrapText(true);
         final var scrollPane = Shared.createStandardScrollPane(story);
-        scrollPane.prefWidthProperty().bind(widthProperty());
         story.prefHeightProperty().bind(scrollPane.heightProperty());
         setCenter(scrollPane);
-
-        if (fluke != null) {
-            title.setText(fluke.title());
-            story.setText(fluke.story());
-        }
-    }
-
-    boolean checkUnfinished() {
-        return title.getText().isBlank() || story.getText().isBlank();
     }
 }

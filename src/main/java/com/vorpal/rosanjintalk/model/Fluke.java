@@ -11,8 +11,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.vorpal.rosanjintalk.ui.RosanjinTalk;
-import com.vorpal.rosanjintalk.ui.Shared;
+import com.vorpal.rosanjintalk.shared.Shared;
 
 /**
  * This is an immutable model for storing a RosanjinTalk file, aka a Fluke.
@@ -50,7 +49,7 @@ public record Fluke(String filename, String title, Map<Integer, String> inputs, 
      */
     public void save() {
         final var flukeFilename = filename.endsWith(".fluke") ? filename : filename + ".fluke";
-        final var path = Objects.requireNonNull(RosanjinTalk.getFlukePath());
+        final var path = Objects.requireNonNull(Shared.getFlukePath());
         final var flukePath = path.resolve(flukeFilename);
 
         try {
@@ -69,7 +68,7 @@ public record Fluke(String filename, String title, Map<Integer, String> inputs, 
      * @return A Fluke object representing the file.
      */
     public static Fluke load(final String flukeFilename) {
-        final var path = RosanjinTalk.getFlukePath();
+        final var path = Shared.getFlukePath();
         Objects.requireNonNull(path);
         final var flukePath = path.resolve(flukeFilename);
         try {
