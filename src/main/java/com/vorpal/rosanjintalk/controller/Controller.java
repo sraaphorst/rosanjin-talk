@@ -11,5 +11,9 @@ public interface Controller<T extends Pane> {
      */
     void configure();
 
+    /**
+     * Get the view associated with the Controller.
+     * @return the view managed by the controller
+     */
     T getView();
 }

@@ -1,5 +1,7 @@
 package com.vorpal.rosanjintalk.controller.editor;
 
+// By Sebastian Raaphorst, 2023.
+
 import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.model.Fluke;
 import com.vorpal.rosanjintalk.view.editor.EditRowView;
@@ -15,34 +17,40 @@ import java.util.stream.Collectors;
 public class InputsController implements Controller<InputsView> {
     private final InputsView view;
     private final List<EditRowView> rows;
-
-    // Filename has to be mutable to save without prompting.
-    private String filename;
+    private final EditorController editorController;
 
     // Checkbox action for rows to determine if the delete button should be available.
-    private final EventHandler<ActionEvent> cbEventHandler =
-            (final ActionEvent e) -> processDeleteButtonState();
+    private final EventHandler<ActionEvent> cbEventHandler;
 
-    public InputsController(final Fluke fluke) {
-        view = new InputsView();
-        filename = fluke.filename();
-        rows = new ArrayList<>();
-        fluke.inputs().forEach(this::addRow);
+    public InputsController(final EditorController editorController) {
+        this(editorController, null);
     }
 
-    public InputsController() {
+    public InputsController(final EditorController editorController,
+                            final Fluke fluke) {
         view = new InputsView();
-        filename = null;
         rows = new ArrayList<>();
+        this.editorController = editorController;
+        cbEventHandler = (final ActionEvent e) -> editorController.editorButtonController.configureDeleteButtonState();
 
-        // Add one blank row to give the user an indication on how to work.
-        addRow();
+        // If fluke is not null, set the initial rows.
+        if (fluke != null)
+            fluke.inputs().forEach((idx, prompt) ->
+                    rows.add(new EditRowView(idx, prompt))
+            );
     }
 
     @Override
     public void configure() {
-        // Set up the rows upon initial configuration.
-        rows.forEach(this::configureRow);
+        // If the set of rows is non-empty, then row data was passed in by the Fluke.
+        // The rows have been created, but not configured, so call configureRow on each.
+        if (!rows.isEmpty())
+            rows.forEach(this::configureRow);
+
+        // Otherwise, just insert one empty row to give the user an indication on how to work.
+        // Note that addRow adds an empty row and calls configureRow on it.
+        else
+            addRow();
     }
 
     @Override
@@ -60,63 +68,68 @@ public class InputsController implements Controller<InputsView> {
     }
 
     /**
-     * Add an existing row, i.e. from a supplied Fluke.
-     * @param idx    the idx of the substitution
-     * @param prompt the prompt for the substitution
-     */
-    public void addRow(final int idx, final String prompt) {
-        final var row = new EditRowView(idx, prompt);
-        rows.add(row);
-        configureRow(row);
-    }
-
-    /**
-     * Common method to configure rowViews with the proper handlers.
+     * Common method to configure an EditRowView with the proper handlers and it to the view.
+     * Calls the EditorButtonController.configureSaveButton method to determine if saving should
+     *   be allowed.
      * @param rowView the EditRowView to configure
      */
     private void configureRow(final EditRowView rowView) {
         rowView.cb.setOnAction(cbEventHandler);
-        rowView.prompt.setOnKeyTyped(e -> processSaveButtonState());
+        rowView.prompt.textProperty().addListener((observable, oldValue, newValue) ->
+            editorController.editorButtonController.configureSaveButtonState()
+        );
+        view.addRow(view.getRowCount(), rowView.cb, rowView.sub, rowView.prompt);
+
+        // Recalculate the configuration state of the save button based on the contents of the new row.
+        editorController.editorButtonController.configureSaveButtonState();
     }
 
     /**
-     * Check if the Delete button in the button panel should be active.
-     * This occurs if there is a checkbox checked.
+     * Delete the rows that have their checkboxes checked.
      */
-    public void processDeleteButtonState() {
-        final var checkboxesTicked = rows.stream()
+    void deleteRows() {
+        // Get the rows that are checked.
+        final var checkedRows = rows.stream()
+                .filter(row -> row.cb.isSelected())
+                .toList();
+
+        // Remove the rows from the view.
+        checkedRows.forEach(row -> view.getChildren().removeAll(row.cb, row.sub, row.prompt));
+
+        // Remove the rows from the row array.
+        rows.removeAll(checkedRows);
+
+        // Update the button states.
+        editorController.editorButtonController.configureSaveButtonState();
+        editorController.editorButtonController.configureDeleteButtonState();
+    }
+
+    /**
+     * Determine how many checkboxes have been ticked.
+     * This determines the state of the deleteButton in the EditorButtonController.
+     * @return the number of checkboxes ticked
+     */
+    long getCheckboxesTicked() {
+        return rows.stream()
                 .filter(r -> r.cb.isSelected())
                 .count();
-        // TODO: Send the output to the EditorButtonView's setDeleteButtonState.
     }
 
     /**
-     * Check if the Save button in the button panel should be active.
-     * This occurs if there is no empty data fields.
-     */
-    public void processSaveButtonState() {
-        // TODO: Call the EditorButtonView's processSaveButtonState.
-    }
-
-    /**
-     * Returns if this component is incomplete, for use by the save button enable calculation.
-     * If a prompt is found that is blank, the first one found grabs the focus.
+     * Returns if this component is incomplete, i.e. there is a prompt that is blacnk.
+     * This is for use by the save button state enable calculation.
      * @return true if incomplete (i.e. any of the prompts blank), false otherwise
      */
-    public boolean isIncomplete() {
-        final var emptyRow = rows.stream()
-                .filter(r -> r.prompt.getText().isBlank())
-                .findFirst();
-
-        emptyRow.ifPresent(r -> r.prompt.requestFocus());
-        return emptyRow.isPresent();
+    boolean isIncomplete() {
+        return rows.stream()
+                .anyMatch(r -> r.prompt.getText().isBlank());
     }
 
     /**
      * Retrieve the list of inputs from the component for use in a Fluke file.
      * @return a Map of index to prompt
      */
-    public Map<Integer, String> getInputs() {
+    Map<Integer, String> getInputs() {
         return rows.stream()
                 .collect(Collectors.toUnmodifiableMap(r -> r.idx, r -> r.prompt.getText()));
     }

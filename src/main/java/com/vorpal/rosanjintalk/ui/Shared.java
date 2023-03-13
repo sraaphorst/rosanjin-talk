@@ -10,11 +10,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Set;
 
 public final class Shared {
@@ -24,8 +28,7 @@ public final class Shared {
     public static final String CONFIRMATION_TITLE = TITLE + " Confirmation";
 
     public static final double SPACING = 10;
-//    public static final double  = 20;
-    public static final double HORIZONTAL_SPACING = 30;
+    public static final double HORIZONTAL_SPACING = 20;
     public static final double VERTICAL_SPACING = 20;
     public static final Insets PADDING = new Insets(SPACING);
 
@@ -48,6 +51,30 @@ public final class Shared {
                 evt -> { if (evt.getDeltaX() != 0) evt.consume(); });
 
         return scrollPane;
+    }
+
+    public enum FileOptions {
+        SAVE("Save Fluke"),
+        OPEN("Open Fluke");
+
+        final String title;
+        FileOptions(final String title) {
+            this.title = title;
+        }
+    }
+
+    public static File fileChooserDialog(final Stage s, final FileOptions fileOptions) {
+        final var fileChooser = new FileChooser();
+        fileChooser.setTitle(fileOptions.title);
+        final var flukePath = Objects.requireNonNull(getFlukePath());
+        fileChooser.setInitialDirectory(flukePath.toFile());
+        final var extFilter = new FileChooser.ExtensionFilter("Fluke files", "*.fluke");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        return switch (fileOptions) {
+            case SAVE -> fileChooser.showSaveDialog(s);
+            case OPEN -> fileChooser.showOpenDialog(s);
+        };
     }
 
     public static boolean confirmationRequest(final String text) {

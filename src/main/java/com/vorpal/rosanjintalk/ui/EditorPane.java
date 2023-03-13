@@ -205,7 +205,7 @@ final public class EditorPane extends BorderPane {
         });
 
         saveButton.setOnAction(e -> {
-            // This should never happen: the save button should prevent it..
+            // This should never happen: the save button should prevent it.
             if (!inputsValid()) {
                 Shared.recoverableError("There are empty prompts.");
                 return;
@@ -322,7 +322,7 @@ final public class EditorPane extends BorderPane {
      * @return the input map for a Fluke.
      */
     private Map<Integer, String> getInputs() {
-        return rows.str.collect(Collectors.toUnmodifiableMap(r -> r.index, r -> r.prompt.getText()));
+        return rows.stream().collect(Collectors.toUnmodifiableMap(r -> r.index, r -> r.prompt.getText()));
 
     }
 }

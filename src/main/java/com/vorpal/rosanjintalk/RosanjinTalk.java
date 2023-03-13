@@ -2,6 +2,7 @@ package com.vorpal.rosanjintalk;
 
 // By Sebastian Raaphorst, 2023.
 
+import com.vorpal.rosanjintalk.controller.editor.EditorController;
 import com.vorpal.rosanjintalk.controller.management.ManagementController;
 import com.vorpal.rosanjintalk.ui.Shared;
 import javafx.application.Application;
@@ -16,12 +17,12 @@ public class RosanjinTalk extends Application {
     public void start(final Stage stage) {
         stage.setTitle(Shared.TITLE);
 
-//        final var root = new EditorPane(stage);
-//        final var scene = new Scene(root, EditorPane.width(), EditorPane.height());
+//        final var root = new EditorController(stage, null);
+//        root.configure();
 
         final var root = new ManagementController(stage);
         root.configure();
-        final var scene = new Scene(root.getView(), 500, 540);
+        final var scene = new Scene(root.getView(), 650, 500);
 
         final var closeKeys = KeyCodeCombination.valueOf("Shortcut+W");
         scene.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
