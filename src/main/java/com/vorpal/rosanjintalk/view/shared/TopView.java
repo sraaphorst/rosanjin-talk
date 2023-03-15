@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
  * they have the same format.
  */
 public class TopView extends BorderPane {
-    private static final int LEFT_WIDTH = 300;
+    private static final int LEFT_WIDTH = 350;
 
     public TopView(final Pane inputView,
                    final Pane buttonView,

@@ -5,6 +5,7 @@ package com.vorpal.rosanjintalk.view.player;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.text.TextAlignment;
 
 public class PlayerRowView {
@@ -16,8 +17,9 @@ public class PlayerRowView {
         this.idx = idx;
 
         prompt = new Label(promptText);
+        prompt.setTooltip(new Tooltip(promptText));
         prompt.setTextAlignment(TextAlignment.RIGHT);
-        prompt.setAlignment(Pos.CENTER_RIGHT);
+        prompt.setAlignment(Pos.CENTER_LEFT);
 
         answer = new TextField();
         answer.setAlignment(Pos.CENTER_LEFT);

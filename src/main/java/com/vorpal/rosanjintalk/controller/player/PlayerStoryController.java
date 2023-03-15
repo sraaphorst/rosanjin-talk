@@ -21,8 +21,10 @@ public class PlayerStoryController implements Controller<StoryView> {
     @Override
     public void configure() {
         view.title.setEditable(false);
+//        view.title.setDisable(true);
         view.title.setFocusTraversable(false);
         view.story.setEditable(false);
+//        view.story.setDisable(true);
         view.story.setFocusTraversable(false);
     }
 

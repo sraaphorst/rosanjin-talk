@@ -16,9 +16,9 @@ public class PlayerInputsView extends GridPane {
         setPadding(Shared.PADDING);
 
         final var c0 = new ColumnConstraints();
-        c0.setPercentWidth(75);
+        c0.setPercentWidth(60);
         final var c1 = new ColumnConstraints();
-        c1.setPercentWidth(25);
+        c1.setPercentWidth(40);
         getColumnConstraints().addAll(c0, c1);
 
         final var promptLabel = new Label("Prompt");

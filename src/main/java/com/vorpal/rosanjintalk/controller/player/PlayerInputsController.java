@@ -7,6 +7,7 @@ import com.vorpal.rosanjintalk.model.Fluke;
 import com.vorpal.rosanjintalk.shared.Shared;
 import com.vorpal.rosanjintalk.view.player.PlayerInputsView;
 import com.vorpal.rosanjintalk.view.player.PlayerRowView;
+import javafx.application.Platform;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class PlayerInputsController implements Controller<PlayerInputsView> {
                 // Any variation of fleurg is not an admissible answer.
                 if (newValue.strip().toLowerCase().contains("fleurg")) {
                     Shared.recoverableError("You are being sent to fleurgatory.");
-                    rowView.answer.setText("");
+                    Platform.runLater(rowView.answer::clear);
                 }
 
                 // In case the text was deleted, reconfigure the play button state.

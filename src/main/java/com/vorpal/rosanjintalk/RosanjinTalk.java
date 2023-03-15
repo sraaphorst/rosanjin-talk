@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 import java.util.function.Function;
 
 public class RosanjinTalk extends Application {
-    private static final int WIDTH = 650;
+    private static final int WIDTH = 750;
     private static final int HEIGHT = 500;
     private static final KeyCombination CLOSE_KEYS = KeyCodeCombination.valueOf("Shortcut+W");
 
