@@ -8,7 +8,7 @@ import javafx.scene.layout.Pane;
  * The top-level view for both the PlayerView and the EditView, since
  * they have the same format.
  */
-public class TopView extends BorderPane {
+public final class TopView extends BorderPane {
     private static final int LEFT_WIDTH = 350;
 
     public TopView(final Pane inputView,

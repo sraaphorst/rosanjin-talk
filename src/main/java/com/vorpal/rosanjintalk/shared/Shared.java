@@ -18,8 +18,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public final class Shared {
     public static final String TITLE = "RosanjinTalk";
@@ -27,10 +31,14 @@ public final class Shared {
     public static final String ERROR_TITLE = TITLE + " Error";
     public static final String CONFIRMATION_TITLE = TITLE + " Confirmation";
 
+    // Spacing information for JavaFX.
     public static final double SPACING = 10;
     public static final double HORIZONTAL_SPACING = 20;
     public static final double VERTICAL_SPACING = 20;
     public static final Insets PADDING = new Insets(SPACING);
+
+    // Time of day in ms.
+    private static final long dayMs = TimeUnit.DAYS.toMillis(1);
 
     private Shared() {}
 
@@ -120,6 +128,16 @@ public final class Shared {
         System.exit(1);
     }
 
+    public static void infoMessage(final String title, final String text) {
+        System.out.println(title);
+        System.out.println(text);
+        final var alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(text);
+        alert.showAndWait();
+    }
+
     /**
      * Convert a `Set<Integer>` representing prompt indices to a human-readable String representation.
      * This consists of the elements of the set surrounded by curly braces.
@@ -173,5 +191,53 @@ public final class Shared {
             Shared.unrecoverableError("Could not determine path of running application.");
             return null;
         }
+    }
+
+    /**
+     * Calculates the duration between now and the next instance of time.
+     * @return a long representing the milliseconds until the next event
+     */
+    private static long getDelay(final LocalTime time) {
+        final var delay = Duration.between(LocalTime.now(), time).toMillis();
+        return delay >= 0 ? delay : delay + dayMs;
+    }
+
+    /**
+     * A hidden gem: configuration of several alert panes at 11:11 and 23:11 to make messages appear about
+     * Walnut the crane.
+     */
+    public static void configureWalnut() {
+        var executorService = Executors.newScheduledThreadPool(1);
+            final Runnable walnut = () -> Platform.runLater(() -> {
+                infoMessage("Uh oh...",
+                        """
+                                Off in the distance
+                                Bird talons upon pavement
+                                She cannot be stopped.
+                                """);
+                infoMessage("X_X",
+                        """
+                                It is Walnut the crane
+                                Justifiably insane
+                                The blood is still fresh
+                                She dines upon flesh
+                                Not a modicum of bird shame.
+                                """);
+                infoMessage("...",
+                        """
+                                The task is now complete.
+                                She has accomplished her feat.
+                                Her cloaca is proud and puffy
+                                She needs her life mate most scruffy
+                                Only one man is her beau
+                                The zookeeper known as Crowe.
+                                """);
+            });
+
+            final var delay_11_11 = getDelay(LocalTime.of(11, 11));
+            final var delay_23_11 = getDelay(LocalTime.of(23, 11));
+
+            executorService.scheduleAtFixedRate(walnut, delay_11_11, dayMs, TimeUnit.MILLISECONDS);
+            executorService.scheduleAtFixedRate(walnut, delay_23_11, dayMs, TimeUnit.MILLISECONDS);
     }
 }

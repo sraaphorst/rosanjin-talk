@@ -9,7 +9,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class PlayerStoryController implements Controller<StoryView> {
+public final class PlayerStoryController implements Controller<StoryView> {
     private final StoryView view;
     private final PlayerController playerController;
 

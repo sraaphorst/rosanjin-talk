@@ -11,7 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.TextAlignment;
 
-public class StoryView extends BorderPane {
+public final class StoryView extends BorderPane {
     public final TextField title;
     public final TextArea story;
 

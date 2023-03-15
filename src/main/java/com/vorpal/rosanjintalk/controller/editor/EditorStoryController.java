@@ -10,7 +10,7 @@ import javafx.beans.value.ObservableValue;
 
 import java.util.Set;
 
-public class EditorStoryController implements Controller<StoryView> {
+public final class EditorStoryController implements Controller<StoryView> {
     private final StoryView view;
     private final EditorController editorController;
 

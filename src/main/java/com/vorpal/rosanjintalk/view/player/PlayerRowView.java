@@ -8,7 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.TextAlignment;
 
-public class PlayerRowView {
+public final class PlayerRowView {
     public final int idx;
     public final Label prompt;
     public final TextField answer;

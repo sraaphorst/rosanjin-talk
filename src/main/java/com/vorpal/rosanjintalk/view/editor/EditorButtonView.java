@@ -8,7 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 
-public class EditorButtonView extends HBox {
+public final class EditorButtonView extends HBox {
     public final Button addButton;
     public final Button deleteButton;
     public final Button saveButton;

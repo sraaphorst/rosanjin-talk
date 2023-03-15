@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * The top-level editor controller that links the other controllers together.
  */
-public class EditorController implements Controller<TopView> {
+public final class EditorController implements Controller<TopView> {
     private final TopView view;
     private final Stage stage;
     final EditorInputsController editorInputsController;

@@ -27,7 +27,7 @@ public final class FlukeSelectorController implements Controller<FlukeSelectorVi
     public void configure() {
         view.fileList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             final var disabled = newValue == null;
-            managementController.getManagementButtonController().setButtonsDisable(disabled);
+            managementController.managementButtonController.setButtonsDisable(disabled);
         });
         populateFiles();
     }
