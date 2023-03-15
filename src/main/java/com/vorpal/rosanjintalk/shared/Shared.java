@@ -129,8 +129,6 @@ public final class Shared {
     }
 
     public static void infoMessage(final String title, final String text) {
-        System.out.println(title);
-        System.out.println(text);
         final var alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
