@@ -9,11 +9,14 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -40,12 +43,14 @@ public final class Shared {
     // Time of day in ms.
     private static final long dayMs = TimeUnit.DAYS.toMillis(1);
 
-    private Shared() {}
+    private Shared() {
+    }
 
     /**
      * Create a standard vertical ScrollPane to manage n.
+     *
      * @param n the Node managed by the ScrollPane
-     * @return  the configured ScrollPane
+     * @return the configured ScrollPane
      */
     public static ScrollPane createStandardScrollPane(final Node n) {
         final var scrollPane = new ScrollPane(n);
@@ -56,7 +61,9 @@ public final class Shared {
 
         // Do not allow horizontal scrolling.
         scrollPane.addEventFilter(ScrollEvent.SCROLL,
-                evt -> { if (evt.getDeltaX() != 0) evt.consume(); });
+                evt -> {
+                    if (evt.getDeltaX() != 0) evt.consume();
+                });
 
         return scrollPane;
     }
@@ -66,6 +73,7 @@ public final class Shared {
         OPEN("Open Fluke");
 
         final String title;
+
         FileOptions(final String title) {
             this.title = title;
         }
@@ -128,8 +136,10 @@ public final class Shared {
         System.exit(1);
     }
 
-    public static void infoMessage(final String title, final String text) {
+    public static void infoMessage(final String title, final String text, final ImageView imageView) {
         final var alert = new Alert(Alert.AlertType.INFORMATION);
+        if (imageView != null)
+            alert.setGraphic(imageView);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(text);
@@ -141,8 +151,9 @@ public final class Shared {
      * This consists of the elements of the set surrounded by curly braces.
      * Example: If the set is {1, 2}, this method returns:
      * `"{1}, {2}"`
+     *
      * @param set the Set to convert
-     * @return    the String representation, which is empty if the set is empty
+     * @return the String representation, which is empty if the set is empty
      */
     public static String promptIndexSetToString(final Set<Integer> set) {
         final var sb = new StringBuilder();
@@ -160,6 +171,7 @@ public final class Shared {
 
     /**
      * Get the path in which the fluke files are stored.
+     *
      * @return Path representing the path where fluke files are stored.
      */
     public static Path getFlukePath() {
@@ -180,7 +192,7 @@ public final class Shared {
                         "is not a directory.");
 
             if (!file.exists() && !file.mkdir())
-                Shared.unrecoverableError ("The directory:\n\n" + file.getPath() +
+                Shared.unrecoverableError("The directory:\n\n" + file.getPath() +
                         "\n\nthat is supposed to contain fluke files\n" +
                         "could not be created.");
 
@@ -193,6 +205,7 @@ public final class Shared {
 
     /**
      * Calculates the duration between now and the next instance of time.
+     *
      * @return a long representing the milliseconds until the next event
      */
     private static long getDelay(final LocalTime time) {
@@ -206,36 +219,44 @@ public final class Shared {
      */
     public static void configureWalnut() {
         final var executorService = Executors.newScheduledThreadPool(1);
-            final Runnable walnut = () -> Platform.runLater(() -> {
-                infoMessage("Uh oh...",
-                        """
-                                Off in the distance
-                                Bird talons upon pavement
-                                She cannot be stopped.
-                                """);
-                infoMessage("X_X",
-                        """
-                                It is Walnut the crane
-                                Justifiably insane
-                                The blood is still fresh
-                                She dines upon flesh
-                                Not a modicum of bird shame.
-                                """);
-                infoMessage("...",
-                        """
-                                The task is now complete.
-                                She has accomplished her feat.
-                                Her cloaca is proud and puffy
-                                She needs her life mate most scruffy
-                                Only one man is her beau
-                                The zookeeper known as Crowe.
-                                """);
-            });
+        final Runnable walnut = () -> Platform.runLater(() -> {
+            ImageView walnutImageView;
+            try (final var walnutImageStream = Shared.class.getResourceAsStream("/walnut.png")) {
+                Objects.requireNonNull(walnutImageStream);
+                final var walnutImage = new Image(walnutImageStream);
+                walnutImageView = new ImageView(walnutImage);
+            } catch (final IOException e) {
+                walnutImageView = null;
+            }
 
-            final var delay_11_11 = getDelay(LocalTime.of(11, 11));
-            final var delay_23_11 = getDelay(LocalTime.of(23, 11));
+            infoMessage("She awakens...",
+                    """
+                            Off in the distance
+                            Bird talons upon pavement
+                            She cannot be stopped.
+                            """, walnutImageView);
+            infoMessage("X_X",
+                    """
+                            Hark! It is Walnut the crane
+                            She is justifiably insane
+                            The blood is still fresh
+                            She dines upon flesh
+                            Not a modicum of avian shame.
+                            """, walnutImageView);
+            infoMessage("...for now",
+                    """
+                            The task is now complete.
+                            She has accomplished her feat.
+                            Her cloaca is proud and so puffy
+                            She needs her life mate most scruffy
+                            Only one man can be her beau
+                            The zookeeper known as Crowe.
+                            """, walnutImageView);
+        });
 
-            executorService.scheduleAtFixedRate(walnut, delay_11_11, dayMs, TimeUnit.MILLISECONDS);
-            executorService.scheduleAtFixedRate(walnut, delay_23_11, dayMs, TimeUnit.MILLISECONDS);
+        final var delay_11_11 = getDelay(LocalTime.of(11, 11));
+        final var delay_23_11 = getDelay(LocalTime.of(23, 11));
+        executorService.scheduleAtFixedRate(walnut,delay_11_11, dayMs, TimeUnit.MILLISECONDS);
+        executorService.scheduleAtFixedRate(walnut,delay_23_11, dayMs, TimeUnit.MILLISECONDS);
     }
 }
