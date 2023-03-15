@@ -207,7 +207,7 @@ public final class Shared {
      * Walnut the crane.
      */
     public static void configureWalnut() {
-        var executorService = Executors.newScheduledThreadPool(1);
+        final var executorService = Executors.newScheduledThreadPool(1);
             final Runnable walnut = () -> Platform.runLater(() -> {
                 infoMessage("Uh oh...",
                         """
