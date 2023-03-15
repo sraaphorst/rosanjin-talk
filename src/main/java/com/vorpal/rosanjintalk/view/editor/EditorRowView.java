@@ -6,7 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 
-public class EditorRowView {
+public final class EditorRowView {
     // Number of the last row.
     private static int rowIdx = 0;
 

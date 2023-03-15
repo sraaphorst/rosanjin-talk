@@ -15,17 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class EditorInputsController implements Controller<EditorInputsView> {
+public final class EditorInputsController implements Controller<EditorInputsView> {
     private final EditorInputsView view;
     private final List<EditorRowView> rows;
     private final EditorController editorController;
 
     // Checkbox action for rows to determine if the delete button should be available.
     private final EventHandler<ActionEvent> cbEventHandler;
-
-    public EditorInputsController(final EditorController editorController) {
-        this(editorController, null);
-    }
 
     public EditorInputsController(final EditorController editorController,
                                   final Fluke fluke) {

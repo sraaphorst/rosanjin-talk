@@ -8,7 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 
-public class PlayerButtonView extends HBox {
+public final class PlayerButtonView extends HBox {
     public final Button playButton;
     public final Button copyButton;
     public final Button saveButton;

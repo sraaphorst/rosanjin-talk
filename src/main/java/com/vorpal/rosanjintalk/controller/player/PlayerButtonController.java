@@ -5,7 +5,7 @@ package com.vorpal.rosanjintalk.controller.player;
 import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.view.player.PlayerButtonView;
 
-public class PlayerButtonController implements Controller<PlayerButtonView> {
+public final class PlayerButtonController implements Controller<PlayerButtonView> {
     private final PlayerButtonView view;
     private final PlayerController playerController;
 

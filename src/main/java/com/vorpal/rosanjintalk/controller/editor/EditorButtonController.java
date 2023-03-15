@@ -5,7 +5,7 @@ package com.vorpal.rosanjintalk.controller.editor;
 import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.view.editor.EditorButtonView;
 
-public class EditorButtonController implements Controller<EditorButtonView> {
+public final class EditorButtonController implements Controller<EditorButtonView> {
     private final EditorButtonView view;
     private final EditorController editorController;
 

@@ -12,7 +12,7 @@ import javafx.application.Platform;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class PlayerInputsController implements Controller<PlayerInputsView> {
+public final class PlayerInputsController implements Controller<PlayerInputsView> {
     private final PlayerInputsView view;
     private final List<PlayerRowView> rows;
     private final PlayerController playerController;
@@ -30,7 +30,8 @@ public class PlayerInputsController implements Controller<PlayerInputsView> {
         );
 
         // Shuffle the rows to make the game less predictable.
-        Collections.shuffle(rows);
+        // Create a new random which seeds itself so that the order is unpredictable.
+        Collections.shuffle(rows, new Random());
     }
 
     @Override

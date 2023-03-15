@@ -30,12 +30,4 @@ public final class ManagementController implements Controller<ManagementView> {
     public ManagementView getView() {
         return view;
     }
-
-    public FlukeSelectorController getFlukeSelectorController() {
-        return flukeSelectorController;
-    }
-
-    public ManagementButtonController getManagementButtonController() {
-        return managementButtonController;
-    }
 }

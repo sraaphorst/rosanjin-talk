@@ -9,7 +9,7 @@ import com.vorpal.rosanjintalk.shared.Shared;
 import com.vorpal.rosanjintalk.view.shared.TopView;
 import javafx.stage.Stage;
 
-public class PlayerController implements Controller<TopView> {
+public final class PlayerController implements Controller<TopView> {
     private final TopView view;
     final Stage stage;
     final PlayerInputsController playerInputsController;
