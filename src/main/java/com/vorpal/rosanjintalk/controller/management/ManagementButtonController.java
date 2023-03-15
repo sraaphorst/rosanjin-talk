@@ -35,7 +35,11 @@ public final class ManagementButtonController implements Controller<ManagementBu
     public void configure() {
         final var flukePath = Objects.requireNonNull(Shared.getFlukePath());
 
-        view.playButton.setOnAction(e -> {System.out.println("Play!!!");});
+        view.playButton.setOnAction(e -> {
+            final var selectedFluke = managementController.flukeSelectorController.getSelectedValue();
+            final var fluke = Fluke.load(selectedFluke);
+            RosanjinTalk.showPlayer(stage, fluke);
+        });
 
         view.addButton.setOnAction(e -> {
             final var fileChooser = new FileChooser();
@@ -53,7 +57,7 @@ public final class ManagementButtonController implements Controller<ManagementBu
                     return;
 
                 try {
-                    final var flukeSelectorController = managementController.getFlukeSelectorController();
+                    final var flukeSelectorController = managementController.flukeSelectorController;
                     final var selectedIdx = flukeSelectorController.getSelectedIndex();
                     Files.copy(uri, flukePath.resolve(name), StandardCopyOption.REPLACE_EXISTING);
                     flukeSelectorController.populateFiles();
@@ -67,20 +71,19 @@ public final class ManagementButtonController implements Controller<ManagementBu
         view.newButton.setOnAction(e -> RosanjinTalk.showEditor(stage, null));
 
         view.editButton.setOnAction(e -> {
-            final var flukeSelectorController = managementController.getFlukeSelectorController();
-            final var filename = flukeSelectorController.getSelectedValue();
-            final var fluke = Fluke.load(filename);
+            final var selectedFluke = managementController.flukeSelectorController.getSelectedValue();
+            final var fluke = Fluke.load(selectedFluke);
             RosanjinTalk.showEditor(stage, fluke);
         });
 
         view.deleteButton.setOnAction(e -> {
-            final var flukeSelectorController = managementController.getFlukeSelectorController();
-            final var filename = flukeSelectorController.getSelectedValue();
-            final var response = Shared.confirmationRequest("Are you sure you want to delete: " + filename);
+            final var flukeSelectorController = managementController.flukeSelectorController;
+            final var selectedFluke = flukeSelectorController.getSelectedValue();
+            final var response = Shared.confirmationRequest("Are you sure you want to delete: " + selectedFluke);
             if (response) {
                 final var selectedIdx = flukeSelectorController.getSelectedIndex();
-                if (!flukePath.resolve(filename).toFile().delete())
-                    Shared.recoverableError("Could not delete file: " + filename);
+                if (!flukePath.resolve(selectedFluke).toFile().delete())
+                    Shared.recoverableError("Could not delete file: " + selectedFluke);
                 flukeSelectorController.populateFiles();
                 final var newSelectedIdx =
                         selectedIdx >= flukeSelectorController.getNumberFiles() ?

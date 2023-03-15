@@ -10,12 +10,12 @@ import javafx.beans.value.ObservableValue;
 
 import java.util.Set;
 
-public class EditStoryController implements Controller<StoryView> {
+public class EditorStoryController implements Controller<StoryView> {
     private final StoryView view;
     private final EditorController editorController;
 
-    public EditStoryController(final EditorController editorController,
-                               final Fluke fluke) {
+    public EditorStoryController(final EditorController editorController,
+                                 final Fluke fluke) {
         view = new StoryView();
         this.editorController = editorController;
 
@@ -48,19 +48,19 @@ public class EditStoryController implements Controller<StoryView> {
     }
 
     /**
-     * Retrieve the trimmed text in the title.
-     * @return the trimmed title
+     * Retrieve the stripped text in the title.
+     * @return the stripped title
      */
     public String getTitle() {
-        return view.title.getText().trim();
+        return view.title.getText().strip();
     }
 
     /**
-     * Retrieve the trimmed text in the story.
-     * @return the trimmed story
+     * Retrieve the stripped text in the story.
+     * @return the stripped story
      */
     public String getStory() {
-        return view.story.getText().trim();
+        return view.story.getText().strip();
     }
 
     /**

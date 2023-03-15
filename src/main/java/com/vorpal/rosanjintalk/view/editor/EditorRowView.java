@@ -6,7 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 
-public class EditRowView {
+public class EditorRowView {
     // Number of the last row.
     private static int rowIdx = 0;
 
@@ -18,7 +18,7 @@ public class EditRowView {
     /**
      * Used to create a new RowView.
      */
-    public EditRowView() {
+    public EditorRowView() {
         this.idx = ++rowIdx;
         common();
     }
@@ -27,7 +27,7 @@ public class EditRowView {
      * @param idx    the row's substitution index
      * @param prompt the row's prompt
      */
-    public EditRowView(final int idx, final String prompt) {
+    public EditorRowView(final int idx, final String prompt) {
         if (idx > rowIdx)
             rowIdx = idx;
 
