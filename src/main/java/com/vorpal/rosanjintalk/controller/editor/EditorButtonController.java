@@ -16,8 +16,8 @@ public class EditorButtonController implements Controller<EditorButtonView> {
 
     @Override
     public void configure() {
-        view.addButton.setOnAction(e -> editorController.inputsController.addRow());
-        view.deleteButton.setOnAction(e -> editorController.inputsController.deleteRows());
+        view.addButton.setOnAction(e -> editorController.editorInputsController.addRow());
+        view.deleteButton.setOnAction(e -> editorController.editorInputsController.deleteRows());
         view.saveButton.setOnAction(e -> editorController.saveFluke());
         configureSaveButtonState();
         configureDeleteButtonState();
@@ -32,8 +32,8 @@ public class EditorButtonController implements Controller<EditorButtonView> {
      * Configure the state of the buttons in this panel depending on the other panels.
      */
     void configureSaveButtonState() {
-        view.saveButton.setDisable(editorController.inputsController.isIncomplete() ||
-                editorController.editStoryController.isIncomplete() ||
+        view.saveButton.setDisable(editorController.editorInputsController.isIncomplete() ||
+                editorController.editorStoryController.isIncomplete() ||
                 !editorController.isModified()
         );
     }
@@ -43,7 +43,7 @@ public class EditorButtonController implements Controller<EditorButtonView> {
      */
     void configureDeleteButtonState() {
         view.deleteButton.setDisable(
-                editorController.inputsController.getCheckboxesTicked() == 0
+                editorController.editorInputsController.getCheckboxesTicked() == 0
         );
     }
 }

@@ -9,8 +9,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 
-public final class InputsView extends GridPane {
-    public InputsView() {
+public final class EditorInputsView extends GridPane {
+    public EditorInputsView() {
         super();
         setHgap(Shared.SPACING);
         setPadding(Shared.PADDING);

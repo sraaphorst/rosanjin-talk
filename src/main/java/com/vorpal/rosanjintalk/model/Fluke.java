@@ -159,19 +159,19 @@ public record Fluke(String filename, String title, Map<Integer, String> inputs, 
         if (isInvalid(inputs.keySet(), text))
             throw new RuntimeException("The input set is not valid for the Fluke.");
 
-        // trim all the Strings in the answers.
-        final var trimmedAnswers = inputs.entrySet()
+        // strip all the Strings in the answers.
+        final var strippedAnswers = inputs.entrySet()
                 .stream()
-                .map(entry -> new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), entry.getValue().trim()))
+                .map(entry -> new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), entry.getValue().strip()))
                 .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // If there is an empty entry, then we throw an exception indicating the first empty key.
-        trimmedAnswers.entrySet()
+        strippedAnswers.entrySet()
                 .stream()
-                .sorted()
                 .filter(entry -> entry.getValue().isEmpty())
-                .findFirst()
                 .map(Map.Entry::getKey)
+                .sorted()
+                .findFirst()
                 .ifPresent(key -> {
                     throw new InputEmptyException(key);
                 });
@@ -179,7 +179,7 @@ public record Fluke(String filename, String title, Map<Integer, String> inputs, 
         // Otherwise, substitute the strings. I forgot how terrible Java programming is after Kotlin.
         // No decent fold expression, so we just have to do this the hard way.
         var substitutedText = text;
-        for (final var entry : trimmedAnswers.entrySet())
+        for (final var entry : strippedAnswers.entrySet())
             substitutedText = substitutedText.replace("{" + entry.getKey() + "}", entry.getValue());
         return substitutedText;
     }

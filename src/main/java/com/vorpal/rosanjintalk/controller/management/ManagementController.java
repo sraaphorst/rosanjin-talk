@@ -8,8 +8,8 @@ import javafx.stage.Stage;
 
 public final class ManagementController implements Controller<ManagementView> {
     private final ManagementView view;
-    private final FlukeSelectorController flukeSelectorController;
-    private final ManagementButtonController managementButtonController;
+    final FlukeSelectorController flukeSelectorController;
+    final ManagementButtonController managementButtonController;
 
     public ManagementController(final Stage stage) {
         flukeSelectorController = new FlukeSelectorController(this);

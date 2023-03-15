@@ -63,7 +63,7 @@ public final class Shared {
         }
     }
 
-    public static File fileChooserDialog(final Stage s, final FileOptions fileOptions) {
+    public static File flukeFileChooserDialog(final Stage s, final FileOptions fileOptions) {
         final var fileChooser = new FileChooser();
         fileChooser.setTitle(fileOptions.title);
         final var flukePath = Objects.requireNonNull(getFlukePath());
@@ -75,6 +75,22 @@ public final class Shared {
             case SAVE -> fileChooser.showSaveDialog(s);
             case OPEN -> fileChooser.showOpenDialog(s);
         };
+    }
+
+    public static File textFileChooserDialog(final Stage s) {
+        final var fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Story");
+
+        // Start with trying the Documents directory, which is the default
+        // on Mac, Windows, and Linux, and fall back to home.
+        final var userHome = System.getProperty("user.home");
+        final var documentsPath = Paths.get(userHome, "Documents");
+        final var savePath = documentsPath.toFile().exists() ? documentsPath.toFile() : new File(userHome);
+        fileChooser.setInitialDirectory(savePath);
+
+        final var extFilter = new FileChooser.ExtensionFilter("Text files", "*.txt");
+        fileChooser.getExtensionFilters().add(extFilter);
+        return fileChooser.showSaveDialog(s);
     }
 
     public static boolean confirmationRequest(final String text) {

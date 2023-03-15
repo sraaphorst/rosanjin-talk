@@ -5,8 +5,8 @@ package com.vorpal.rosanjintalk.controller.editor;
 import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.model.Fluke;
 import com.vorpal.rosanjintalk.shared.Shared;
-import com.vorpal.rosanjintalk.view.editor.EditRowView;
-import com.vorpal.rosanjintalk.view.editor.EditorView;
+import com.vorpal.rosanjintalk.view.editor.EditorRowView;
+import com.vorpal.rosanjintalk.view.shared.TopView;
 import javafx.stage.Stage;
 
 import java.nio.file.Path;
@@ -16,12 +16,12 @@ import java.util.Objects;
 /**
  * The top-level editor controller that links the other controllers together.
  */
-public class EditorController implements Controller<EditorView> {
-    private final EditorView view;
+public class EditorController implements Controller<TopView> {
+    private final TopView view;
     private final Stage stage;
-    final InputsController inputsController;
+    final EditorInputsController editorInputsController;
     final EditorButtonController editorButtonController;
-    final EditStoryController editStoryController;
+    final EditorStoryController editorStoryController;
     final Path flukePath;
 
     // The filename must be mutable so that if a new Fluke is created,
@@ -31,19 +31,20 @@ public class EditorController implements Controller<EditorView> {
     // Determine if any modifications have been made.
     private boolean modified;
 
-    public EditorController(final Stage stage, final Fluke fluke) {
+    public EditorController(final Stage stage,
+                            final Fluke fluke) {
         this.stage = stage;
 
         // Reset the indices so when editing a new Fluke file, we begin the substitutions at 1.
-        EditRowView.resetIndex();
+        EditorRowView.resetIndex();
 
-        inputsController = new InputsController(this, fluke);
+        editorInputsController = new EditorInputsController(this, fluke);
         editorButtonController = new EditorButtonController(this);
-        editStoryController = new EditStoryController(this, fluke);
-        view = new EditorView(
-                inputsController.getView(),
+        editorStoryController = new EditorStoryController(this, fluke);
+        view = new TopView(
+                editorInputsController.getView(),
                 editorButtonController.getView(),
-                editStoryController.getView()
+                editorStoryController.getView()
         );
         flukePath = Objects.requireNonNull(Shared.getFlukePath());
         filename = fluke == null ? null : fluke.filename();
@@ -52,8 +53,8 @@ public class EditorController implements Controller<EditorView> {
 
     @Override
     public void configure() {
-        inputsController.configure();
-        editStoryController.configure();
+        editorInputsController.configure();
+        editorStoryController.configure();
 
         // The EditorButtonController must be configured last as, to set the initial state of the
         // buttons, it depends on values configured in the other two controllers.
@@ -61,7 +62,7 @@ public class EditorController implements Controller<EditorView> {
     }
 
     @Override
-    public EditorView getView() {
+    public TopView getView() {
         return view;
     }
 
@@ -73,8 +74,8 @@ public class EditorController implements Controller<EditorView> {
         // TODO: Previously checked if the inputs were valid, i.e. each input had a prompt.
         // TODO: Now we should not have to do this because blank prompts disable the save button.
         // Check to make sure the substitutions are correct.
-        final var inputs = inputsController.getInputs();
-        final var substitutions = editStoryController.getSubstitutions();
+        final var inputs = editorInputsController.getInputs();
+        final var substitutions = editorStoryController.getSubstitutions();
 
         // If we are missing inputs that are used in the story, alert and abort.
         if (!inputs.keySet().containsAll(substitutions)) {
@@ -99,7 +100,7 @@ public class EditorController implements Controller<EditorView> {
         // If the filename is null, prompt for a filename, which must be in the fluke directory.
         if (filename == null) {
             // Get the save filename.
-            final var file = Shared.fileChooserDialog(stage, Shared.FileOptions.SAVE);
+            final var file = Shared.flukeFileChooserDialog(stage, Shared.FileOptions.SAVE);
 
             if (file == null)
                 return;
@@ -112,7 +113,7 @@ public class EditorController implements Controller<EditorView> {
             filename = file.getName();
         }
 
-        new Fluke(filename, editStoryController.getTitle(), inputs, editStoryController.getStory()).save();
+        new Fluke(filename, editorStoryController.getTitle(), inputs, editorStoryController.getStory()).save();
         markUnmodified();
 
         // The focus shifts to the title since the save button is focused and ends up disabled

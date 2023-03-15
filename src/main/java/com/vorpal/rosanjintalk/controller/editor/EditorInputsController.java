@@ -4,8 +4,8 @@ package com.vorpal.rosanjintalk.controller.editor;
 
 import com.vorpal.rosanjintalk.controller.Controller;
 import com.vorpal.rosanjintalk.model.Fluke;
-import com.vorpal.rosanjintalk.view.editor.EditRowView;
-import com.vorpal.rosanjintalk.view.editor.InputsView;
+import com.vorpal.rosanjintalk.view.editor.EditorRowView;
+import com.vorpal.rosanjintalk.view.editor.EditorInputsView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -15,21 +15,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class InputsController implements Controller<InputsView> {
-    private final InputsView view;
-    private final List<EditRowView> rows;
+public class EditorInputsController implements Controller<EditorInputsView> {
+    private final EditorInputsView view;
+    private final List<EditorRowView> rows;
     private final EditorController editorController;
 
     // Checkbox action for rows to determine if the delete button should be available.
     private final EventHandler<ActionEvent> cbEventHandler;
 
-    public InputsController(final EditorController editorController) {
+    public EditorInputsController(final EditorController editorController) {
         this(editorController, null);
     }
 
-    public InputsController(final EditorController editorController,
-                            final Fluke fluke) {
-        view = new InputsView();
+    public EditorInputsController(final EditorController editorController,
+                                  final Fluke fluke) {
+        view = new EditorInputsView();
         rows = new ArrayList<>();
         this.editorController = editorController;
         cbEventHandler = (final ActionEvent e) -> editorController.editorButtonController.configureDeleteButtonState();
@@ -37,7 +37,7 @@ public class InputsController implements Controller<InputsView> {
         // If fluke is not null, set the initial rows.
         if (fluke != null)
             fluke.inputs().forEach((idx, prompt) ->
-                    rows.add(new EditRowView(idx, prompt))
+                    rows.add(new EditorRowView(idx, prompt))
             );
     }
 
@@ -57,7 +57,7 @@ public class InputsController implements Controller<InputsView> {
     }
 
     @Override
-    public InputsView getView() {
+    public EditorInputsView getView() {
         return view;
     }
 
@@ -65,7 +65,7 @@ public class InputsController implements Controller<InputsView> {
      * Add a new empty row.
      */
     public void addRow() {
-        final var row = new EditRowView();
+        final var row = new EditorRowView();
         rows.add(row);
         configureRow(row);
         editorController.markModified();
@@ -77,7 +77,7 @@ public class InputsController implements Controller<InputsView> {
      *   be allowed.
      * @param rowView the EditRowView to configure
      */
-    private void configureRow(final EditRowView rowView) {
+    private void configureRow(final EditorRowView rowView) {
         rowView.cb.setOnAction(cbEventHandler);
         rowView.prompt.textProperty().addListener((observable, oldValue, newValue) -> {
             editorController.editorButtonController.configureSaveButtonState();
@@ -123,7 +123,7 @@ public class InputsController implements Controller<InputsView> {
     }
 
     /**
-     * Returns if this component is incomplete, i.e. there is a prompt that is blacnk.
+     * Returns if this component is incomplete, i.e. there is a prompt that is blank.
      * This is for use by the save button state enable calculation.
      * @return true if incomplete (i.e. any of the prompts blank), false otherwise
      */
