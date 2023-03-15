@@ -24,7 +24,7 @@ public final class SplashPanelView extends HBox {
 
         final ImageView rosanjinImageView;
         setAlignment(Pos.TOP_LEFT);
-        try (final var rosanjinImageStream = getClass().getResourceAsStream("/rosanjin.jpeg")) {
+        try (final var rosanjinImageStream = getClass().getResourceAsStream("/rosanjin.jpg")) {
             Objects.requireNonNull(rosanjinImageStream);
             final var rosanjinImage = new Image(rosanjinImageStream);
             rosanjinImageView = new ImageView(rosanjinImage);
